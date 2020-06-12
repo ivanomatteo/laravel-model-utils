@@ -23,6 +23,24 @@ Generate Type Hinting for Models:
 ```bash
 php artisan hint:models
 ```
+Result:
+``` php
+/**
+
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property mixed $email_verified_at
+ * @property string $password
+ * @property string $remember_token
+ * @property mixed $created_at
+ * @property mixed $updated_at
+*/
+class User extends Authenticatable
+{
+ // .......
+}
+```
 
 Extract metadata from Models:
 
