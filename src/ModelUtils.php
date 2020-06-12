@@ -65,22 +65,25 @@ class ModelUtils
     private function setModel($classOrObj)
     {
 
+        if ($classOrObj instanceof ReflectionClass) {
+            $this->reflectionClass = $classOrObj;
+        }else{
+            $this->reflectionClass = new ReflectionClass($this->model);
+        }
+
         if (is_string($classOrObj)) {
             $this->model = resolve($classOrObj); // laravel resolve() helper
         } else if (is_a($classOrObj, Model::class)) {
             $this->model = $classOrObj;
         } else if ($classOrObj instanceof ReflectionClass) {
             $this->model = resolve($classOrObj->getName());
-            $this->reflectionClass = $classOrObj;
+          
         }
 
         if (!is_a($this->model, Model::class)) {
             throw new \Exception("$classOrObj is not a Model");
         }
 
-        if (!isset($this->reflectionClass)) {
-            $this->reflectionClass = new ReflectionClass($this->model);
-        }
 
         return $this->model;
     }

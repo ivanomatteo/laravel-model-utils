@@ -44,6 +44,10 @@ class HintModels extends Command
 
         foreach ($models as $rfclass) {
 
+            if(!$rfclass->isInstantiable()){
+                continue;
+            }
+
             $file = $rfclass->getFileName();
             $cstart = $rfclass->getStartLine();
 
