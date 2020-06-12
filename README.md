@@ -1,4 +1,4 @@
-# Very short description of the package
+# Laravel model utils
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
 
