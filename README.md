@@ -24,6 +24,7 @@ Generate Type Hinting for Models:
 php artisan hint:models
 ```
 
+Extract metadata from Models:
 
 ``` php
 use IvanoMatteo\ModelUtils\ModelUtils;
