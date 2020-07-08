@@ -3,7 +3,7 @@
 namespace IvanoMatteo\ModelUtils\Drivers;
 
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+
 
 class Mysql
 {
@@ -90,7 +90,7 @@ class Mysql
 
             */
 
-        $dbfld = DB::select(DB::raw("describe " . $this->table));
+        $dbfld = \DB::select(\DB::raw("describe " . static::encForMysqlCol($this->table)));
 
         $len = count($dbfld);
 
@@ -114,7 +114,7 @@ class Mysql
 
             $dbfld[$i]->TypeGeneric = $this->dbtypeMap[strtolower($m[1])] ?? null;
             if (empty($dbfld[$i]->TypeGeneric)) {
-                throw new HttpException(500, "type " . $m[1] . " unknown for driver: mysql");
+                abort(500, "type " . $m[1] . " unknown for driver: mysql");
                 //\Schema::getColumnType($this->getTable(), $dbfld[$i]->Field);
                 //\Schema::getColumnListing()
             }
@@ -134,4 +134,46 @@ class Mysql
 
         return $this->dbMetadata;
     }
+
+
+    public static function encForMysqlCol($name,$as = false) {
+
+        if (empty($name)) {
+            return $name;
+        }
+
+        if (is_array($name)) {
+            foreach (array_keys($name) as $key) {
+                $name[$key] = static::encForMysqlCol($name[$key]);
+            }
+            return $name;
+        }
+
+        if (empty($name)) {
+            throw new \Exception("invalid column name");
+        }
+        $len = strlen($name);
+        if ($len > 64) {
+            throw new \Exception("name is longer than 64 characters");
+        }
+        $prohibited = [
+            '\0' => TRUE, '/' => TRUE, '\\' => TRUE,
+            //aggiunti
+            '\'' => TRUE,
+        ];
+        for ($i = 0; $i < $len; $i++) {
+            if (!empty($prohibited[$name[$i]])) {
+                throw new \Exception("name contains invalid characters characters");
+            }
+        }
+
+
+        $tmp = str_replace('`', '', trim($name));
+        $tmp = explode('.', $tmp);
+
+        $escaped = "`" . implode('`.`', $tmp) . "`".(($as && count($tmp)>1)?(" as `" . implode('.', $tmp) . "`"):'');
+        
+        return  $escaped;
+    }
+    
 }
