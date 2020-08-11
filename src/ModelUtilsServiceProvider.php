@@ -3,6 +3,7 @@
 namespace IvanoMatteo\ModelUtils;
 
 use Illuminate\Support\ServiceProvider;
+use IvanoMatteo\ModelUtils\Commands\GenFactories;
 use IvanoMatteo\ModelUtils\Commands\HintModels;
 
 class ModelUtilsServiceProvider extends ServiceProvider
@@ -42,7 +43,8 @@ class ModelUtilsServiceProvider extends ServiceProvider
 
             // Registering package commands.
             $this->commands([
-                HintModels::class
+                HintModels::class,
+                GenFactories::class,
             ]);
         }
     }

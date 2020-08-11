@@ -1,6 +1,6 @@
 {
     "name": "ivanomatteo/model-utils",
-    "description": "Extract info from models, generate phpdoc comment with property name for type hinting",
+    "description": "Extract info from models, generate laravel factories, generate phpdoc comment with property name for type hinting",
     "keywords": [
         "ivanomatteo",
         "model-utils"

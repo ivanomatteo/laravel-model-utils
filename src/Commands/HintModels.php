@@ -14,7 +14,7 @@ class HintModels extends Command
      *
      * @var string
      */
-    protected $signature = 'hint:models';
+    protected $signature = 'model-ultils:hint-models';
 
     /**
      * The console command description.

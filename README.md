@@ -21,7 +21,7 @@ composer require ivanomatteo/model-utils
 Generate Type Hinting for Models:
 
 ```bash
-php artisan hint:models
+php artisan model-ultils:hint-models
 ```
 Result:
 ``` php
@@ -41,6 +41,33 @@ class User extends Authenticatable
  // .......
 }
 ```
+
+
+Generate factories:
+this command will create factories under database/factories folder
+
+```bash
+
+php artisan model-ultils:gen-factories
+
+```
+Result:
+``` php
+
+$factory->define(Model::class, function (Faker $faker) {
+	return [		
+		'name' => $faker->name,
+		'email' => $faker->unique()->safeEmail,
+		'email_verified_at' => now(),
+		'password' => Hash::make('password'),
+		'remember_token' => Str::random(10),
+	];
+});
+
+```
+
+
+
 
 Extract metadata from Models:
 
