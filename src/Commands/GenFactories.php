@@ -59,7 +59,7 @@ class GenFactories extends Command
             $file = base_path('database/factories/' . $filename);
 
 
-            if (file_exists($file) && $this->confirm('Factory: '.$filename.' alredy exists, do you want overwrite it?')) {
+            if (!file_exists($file) || $this->confirm('Factory: '.$filename.' alredy exists, do you want overwrite it?')) {
                 $processed = static::genFactory($rfclass);
                 file_put_contents($file, $processed);
                 echo $rfclass->getName() . " processed.\n";
