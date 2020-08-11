@@ -14,7 +14,7 @@ class GenFactories extends Command
      *
      * @var string
      */
-    protected $signature = 'model-ultils:gen-factories';
+    protected $signature = 'model-ultils:gen-factories {--model=}';
 
     /**
      * The console command description.
@@ -40,6 +40,8 @@ class GenFactories extends Command
      */
     public function handle()
     {
+        $model = $this->option('model');
+
         $models = ModelUtils::findModels();
 
         foreach ($models as $rfclass) {
@@ -47,10 +49,17 @@ class GenFactories extends Command
             if (!$rfclass->isInstantiable()) {
                 continue;
             }
+            if ($model) {
+                if ($rfclass->getName() !== $model) {
+                    continue;
+                }
+            }
 
-            $file = base_path('database/factories/' . $rfclass->getShortName() . 'Factory.php');
+            $filename = $rfclass->getShortName() . 'Factory.php';
+            $file = base_path('database/factories/' . $filename);
 
-            if (!file_exists($file)) {
+
+            if (file_exists($file) && $this->confirm('Factory: '.$filename.' alredy exists, do you want overwrite it?')) {
                 $processed = static::genFactory($rfclass);
                 file_put_contents($file, $processed);
                 echo $rfclass->getName() . " processed.\n";
@@ -65,6 +74,9 @@ class GenFactories extends Command
     {
         switch ($type) {
             case 'integer':
+                if (\Str::startsWith($name, ['id_']) || \Str::endsWith($name, ['_id'])) {
+                    return '$faker->numberBetween($min = 1, $max = 999999999)';
+                }
                 return '$faker->randomNumber';
             case 'float':
                 return '$faker->randomFloat';
@@ -90,13 +102,13 @@ class GenFactories extends Command
                 if ($name == 'password' || \Str::startsWith($name, ['password_']) || \Str::endsWith($name, ['_password'])) {
                     return 'Hash::make(\'password\')';
                 }
-                if (in_array($name,['last_name','family_name','cognome']) || \Str::startsWith($name, ['last_name_','cognome_']) || \Str::endsWith($name, ['_last_name','_cognome'])) {
+                if (in_array($name, ['last_name', 'family_name', 'cognome']) || \Str::startsWith($name, ['last_name_', 'cognome_']) || \Str::endsWith($name, ['_last_name', '_cognome'])) {
                     return '$faker->lastName';
                 }
-                if (in_array($name,['name','nome']) || \Str::startsWith($name, ['name_','nome_']) || \Str::endsWith($name, ['_name','_nome'])) {
+                if (in_array($name, ['name', 'nome']) || \Str::startsWith($name, ['name_', 'nome_']) || \Str::endsWith($name, ['_name', '_nome'])) {
                     return '$faker->name';
                 }
-                
+
 
                 return '$faker->sentence';
 
@@ -146,7 +158,7 @@ class GenFactories extends Command
         ];
 
         foreach ($colmap as $c => $info) {
-            if (in_array($c, ['id','created_at', 'updated_at', 'deleted_at'])) {
+            if (in_array($c, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
                 continue;
             }
             $out[] = "\t\t'$c' => " . static::guessData($info['type'], $c) . ",";

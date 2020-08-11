@@ -46,11 +46,17 @@ class User extends Authenticatable
 Generate factories:
 this command will create factories under database/factories folder
 
+
 ```bash
 
 php artisan model-ultils:gen-factories
 
+#you can specify a single model:
+php artisan model-ultils:gen-factories --model="App\User"
+
 ```
+
+
 Result:
 ``` php
 
