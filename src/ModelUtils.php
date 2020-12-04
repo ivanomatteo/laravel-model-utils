@@ -4,9 +4,13 @@ namespace IvanoMatteo\ModelUtils;
 
 use Illuminate\Database\Eloquent\Model;
 use ReflectionClass;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\Column;
+use Illuminate\Support\Facades\DB;
 
-
-
+/**
+ * @property Model $model
+ */
 class ModelUtils
 {
     public static $doctrineTypeMap = [
@@ -43,8 +47,8 @@ class ModelUtils
 
     /*
     casts:
-    integer, real, float, double, decimal:<digits>, string, boolean, 
-    object, array, 
+    integer, real, float, double, decimal:<digits>, string, boolean,
+    object, array,
     collection, date, datetime, and timestamp.
     */
 
@@ -64,26 +68,23 @@ class ModelUtils
 
     private function setModel($classOrObj)
     {
-
-        if ($classOrObj instanceof ReflectionClass) {
-            $this->reflectionClass = $classOrObj;
-        }else{
-            $this->reflectionClass = new ReflectionClass($this->model);
-        }
-
         if (is_string($classOrObj)) {
             $this->model = resolve($classOrObj); // laravel resolve() helper
         } else if (is_a($classOrObj, Model::class)) {
             $this->model = $classOrObj;
         } else if ($classOrObj instanceof ReflectionClass) {
             $this->model = resolve($classOrObj->getName());
-          
+        }
+
+        if ($classOrObj instanceof ReflectionClass) {
+            $this->reflectionClass = $classOrObj;
+        } else {
+            $this->reflectionClass = new ReflectionClass($this->model);
         }
 
         if (!is_a($this->model, Model::class)) {
             throw new \Exception("$classOrObj is not a Model");
         }
-
 
         return $this->model;
     }
@@ -118,7 +119,6 @@ class ModelUtils
 
     public function isVisible($f)
     {
-
         if (!isset($this->hiddenMap)) {
             $this->hiddenMap = empty($this->model->getHidden()) ? false : array_flip($this->model->getHidden());
             $this->visibleMap = empty($this->model->getVisible()) ? false : array_flip($this->model->getVisible());
@@ -136,6 +136,45 @@ class ModelUtils
         return $is_visible;
     }
 
+    public function getColumns()
+    {
+        $conn = $this->model->getConnection();
+        $prefix = $conn->getTablePrefix();
+        $schema = $conn->getDoctrineSchemaManager();
+        $databasePlatform = $schema->getDatabasePlatform();
+        $databasePlatform->registerDoctrineTypeMapping('enum', 'string');
+
+        $table = $prefix . $this->model->getTable();
+        $database = null;
+        if (strpos($table, '.')) {
+            [$database, $table] = explode('.', $table);
+        }
+
+        return collect($schema->listTableColumns(
+            $table,
+            $database
+        ))
+            ->mapWithKeys(function (Column $col, $name) {
+                /** @var Type */
+                $type = $col->getType();
+                return [$name => [
+                    'type' => static::$doctrineTypeMap[$type->getName()],
+                    'length' => $col->getLength(),
+                    'nullable' => !$col->getNotnull(),
+                    'default' => $col->getDefault(),
+                    'autoincrement' => $col->getAutoincrement(),
+                    'unsigned' => $col->getUnsigned(),
+                    'visible' => $this->isVisible($name),
+                    'fillable' => $this->model->isFillable($name),
+                ]];
+            });
+    }
+
+    public function getValidationRules(){
+        $this->getColumns()->mapWithKeys(function(Column $col, $name){
+            return [$name => ''];
+        });
+    }
 
 
     private function getDoctrineSchemaInfo()
@@ -159,42 +198,44 @@ class ModelUtils
     /**
      * @return ReflectionClass[]
      */
-    static function findModels($path = null, $baseNamespace = "App")
+    static function findModels($basePath = null, $baseNamespace = "App")
     {
-        if(!isset($path)){
-            $path = app_path('');
+        if (!isset($basePath)) {
+            $basePath = app_path('');
         }
         $baseNamespace = preg_replace("/^\\\\/", '', $baseNamespace);
         $baseNamespace = preg_replace("/\\\\$/", '', $baseNamespace);
 
         $out = [];
+
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(
-                $path
+                $basePath
             ),
             \RecursiveIteratorIterator::SELF_FIRST
         );
+
         foreach ($iterator as $item) {
             /**
              * @var \SplFileInfo $item
              */
             if ($item->isReadable() && $item->isFile() && mb_strtolower($item->getExtension()) === 'php') {
-                $c = str_replace(
+                $relativeFQCN = str_replace(
                     "/",
                     "\\",
-                    mb_substr($item->getRealPath(), mb_strlen($path), -4)
+                    mb_substr($item->getRealPath(), mb_strlen($basePath), -4)
                 );
 
-                $c = $baseNamespace . "$c";
+                $relativeFQCN = $baseNamespace . "$relativeFQCN";
 
-                if (\Str::startsWith($c, "\\")) {
-                    $c = substr($c, 1, strlen($c) - 1);
+                if (\Str::startsWith($relativeFQCN, "\\")) {
+                    $relativeFQCN = substr($relativeFQCN, 1, strlen($relativeFQCN) - 1);
                 }
 
                 include_once $item->getRealPath();
 
-                if (class_exists($c, false)) {
-                    $rc = new ReflectionClass($c);
+                if (class_exists($relativeFQCN, false)) {
+                    $rc = new ReflectionClass($relativeFQCN);
                     if ($rc->isSubclassOf(Model::class)) {
                         $out[] = $rc;
                     }
