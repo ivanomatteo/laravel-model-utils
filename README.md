@@ -18,63 +18,6 @@ composer require ivanomatteo/model-utils
 
 ## Usage
 
-Generate Type Hinting for Models:
-
-```bash
-php artisan model-ultils:hint-models
-```
-Result:
-``` php
-/**
-
- * @property int $id
- * @property string $name
- * @property string $email
- * @property mixed $email_verified_at
- * @property string $password
- * @property string $remember_token
- * @property mixed $created_at
- * @property mixed $updated_at
-*/
-class User extends Authenticatable
-{
- // .......
-}
-```
-
-
-Generate factories:
-this command will create factories under database/factories folder
-
-
-```bash
-
-php artisan model-ultils:gen-factories
-
-#you can specify a single model:
-php artisan model-ultils:gen-factories --model="App\User"
-
-```
-
-
-Result:
-``` php
-
-$factory->define(Model::class, function (Faker $faker) {
-	return [		
-		'name' => $faker->name,
-		'email' => $faker->unique()->safeEmail,
-		'email_verified_at' => now(),
-		'password' => Hash::make('password'),
-		'remember_token' => Str::random(10),
-	];
-});
-
-```
-
-
-
-
 Extract metadata from Models:
 
 ``` php
@@ -85,10 +28,8 @@ $mu = new ModelUtils(\App\User::class);
 echo $mu->isVisible('id')?'y':'n'; // out: y
 echo $mu->isVisible('password')?'y':'n'; // out: n
 
-// retrive db table metadata
-// for mysql is avaible a specific driver that retrive more data
-// in other cases will be used DB::getSchemaBuilder()
-echo json_encode($mu->getDBMetadata(),JSON_PRETTY_PRINT);
+
+echo json_encode($mu->getProperties(),JSON_PRETTY_PRINT);
 /**
  {
     "id": {

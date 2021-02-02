@@ -42,10 +42,8 @@ class ModelUtilsServiceProvider extends ServiceProvider
             ], 'lang');*/
 
             // Registering package commands.
-            $this->commands([
-                HintModels::class,
-                GenFactories::class,
-            ]);
+            //$this->commands([
+            //]);
         }
     }
 
@@ -57,6 +55,6 @@ class ModelUtilsServiceProvider extends ServiceProvider
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'model-utils');
 
-       
+
     }
 }
