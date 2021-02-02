@@ -68,7 +68,7 @@ If you discover any security related issues, please email ivanomatteo@gmail.com 
 ## Credits
 
 -   [Ivano Matteo](https://github.com/ivanomatteo)
--   Thanks also to [Barry vd. Heuvel](https://github.com/barryvdh) for his libraries, i took some pices of code from ide helper
+-   Thanks also to [Barry vd. Heuvel](https://github.com/barryvdh) for his libraries, I took some pices of code from ide helper
 -   [All Contributors](../../contributors)
 
 ## License
