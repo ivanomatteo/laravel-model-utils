@@ -4,11 +4,21 @@
 
 [![Total Downloads](https://img.shields.io/packagist/dt/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
 
-- Generate Type Hinting for Models 
-- Provide a simple way to retrive usefull metadata from laravel models
+This package provide a simple way to retrive usefull metadata from laravel models
 
+-   find all models inside a psr-4 directory structure
+-   retrieve all columns and metadata from database
+-   retrieve indexes metadata
+-   generate basic validation rules using metadata
+-   model type hinting removed, you can use https://github.com/barryvdh/laravel-ide-helper
 
 ## Installation
+
+If you are using laravel version < 8 then install "doctrine/dbal:^2.6" first
+
+```bash
+composer require doctrine/dbal:^2.6
+```
 
 You can install the package via composer:
 
@@ -18,45 +28,28 @@ composer require ivanomatteo/model-utils
 
 ## Usage
 
-Extract metadata from Models:
 
-``` php
+```php
 use IvanoMatteo\ModelUtils\ModelUtils;
+
+dump(ModelUtils::findModels());
 
 $mu = new ModelUtils(\App\User::class);
 
-echo $mu->isVisible('id')?'y':'n'; // out: y
-echo $mu->isVisible('password')?'y':'n'; // out: n
+dump('id visible:',$mu->isVisible('id'));
+dump('password visible:',$mu->isVisible('password'));
 
+dump($mu->getValidationRules());
+dump($mu->getValidationRules(true)); //also for not fillable fields
 
-echo json_encode($mu->getProperties(),JSON_PRETTY_PRINT);
-/**
- {
-    "id": {
-        "dbtype_full": "bigint unsigned",
-        "nullable": false,
-        "key": "PRI",
-        "default": null,
-        "dbtype": "bigint",
-        "dbsize": null,
-        "type": "integer",
-        "extra": "auto_increment"
-    },
-    .......
-}
- */
+dump($mu->getMetadata());
 
-
-// return a ReflectionClass array of found models
-$modelsRefClasses = ModelUtils::findModels(/* $path = null, $baseNamespace = "App" */);
 
 ```
 
-
-
 ### Testing
 
-``` bash
+```bash
 composer test
 ```
 
@@ -74,8 +67,9 @@ If you discover any security related issues, please email ivanomatteo@gmail.com 
 
 ## Credits
 
-- [Ivano Matteo](https://github.com/ivanomatteo)
-- [All Contributors](../../contributors)
+-   [Ivano Matteo](https://github.com/ivanomatteo)
+-   Thanks also to [Barry vd. Heuvel](https://github.com/barryvdh) for his libraries, i took some pices of code from ide helper
+-   [All Contributors](../../contributors)
 
 ## License
 

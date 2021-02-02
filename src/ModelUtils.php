@@ -6,16 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use ReflectionClass;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Schema\Column;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use ReflectionNamedType;
 use phpDocumentor\Reflection\Types\ContextFactory;
 use Barryvdh\Reflection\DocBlock\Context;
 use Barryvdh\Reflection\DocBlock;
+use DateTime;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
-use Illuminate\Support\Collection;
-use PDO;
+use ReflectionObject;
 use ReflectionType;
 
 /**
@@ -23,94 +22,10 @@ use ReflectionType;
  */
 class ModelUtils
 {
-    public static $doctrineTypeMap = [
-        "bigint" => 'integer',
-        "integer" => 'integer',
-        "smallint" => 'integer',
-        "float" => 'float',
-        "decimal" => 'float',
-        "boolean" => 'boolean',
-        "time" => 'time',
-        "datetime" => 'datetime',
-        "date" => 'date',
-        "json" => 'object',
-        "text" => 'text',
-        "string" => 'string',
-        "blob" => 'blob',
-    ];
-
-    public static $types = [
-        'integer',
-        'float',
-        'string',
-        'boolean',
-        'date',
-        'datetime',
-        'timestamp',
-        'time',
-        'year',
-        'text',
-        'blob',
-        'enum',
-        'json',
-        'relation',
-    ];
-
-    /*
-    casts:
-    integer, real, float, double, decimal:<digits>, string, boolean,
-    object, array,
-    collection, date, datetime, and timestamp.
-    */
-
-    private $model;
-    private $reflectionClass;
-
-    private $dbTableMetadata;
-
-    private $visibleMap;
-    private $hiddenMap;
-
-
-    function __construct($classOrObj)
-    {
-        $this->setModel($classOrObj);
-    }
-
-    private function setModel($classOrObj)
-    {
-        if (is_string($classOrObj)) {
-            $this->model = resolve($classOrObj); // laravel resolve() helper
-        } else if (is_a($classOrObj, Model::class)) {
-            $this->model = $classOrObj;
-        } else if ($classOrObj instanceof ReflectionClass) {
-            $this->model = resolve($classOrObj->getName());
-        }
-
-        if ($classOrObj instanceof ReflectionClass) {
-            $this->reflectionClass = $classOrObj;
-        } else {
-            $this->reflectionClass = new ReflectionClass($this->model);
-        }
-
-        if (!is_a($this->model, Model::class)) {
-            throw new \Exception("$classOrObj is not a Model");
-        }
-
-        return $this->model;
-    }
-
-
-
-    function getReflectionClass()
-    {
-        return $this->reflectionClass;
-    }
-
     /**
-     * @return ReflectionClass[]
+     * @return string[]
      */
-    static function findModels($basePath = null, $baseNamespace = "App")
+    public static function findModels($basePath = null, $baseNamespace = "App")
     {
         if (!isset($basePath)) {
             $basePath = app_path('');
@@ -138,18 +53,19 @@ class ModelUtils
                     mb_substr($item->getRealPath(), mb_strlen($basePath), -4)
                 );
 
-                $relativeFQCN = $baseNamespace . "$relativeFQCN";
+                $fqcn = $baseNamespace . "$relativeFQCN";
 
-                if (\Str::startsWith($relativeFQCN, "\\")) {
-                    $relativeFQCN = substr($relativeFQCN, 1, strlen($relativeFQCN) - 1);
+                if (Str::startsWith($fqcn, "\\")) {
+                    $fqcn = substr($fqcn, 1, strlen($fqcn) - 1);
                 }
 
-                include_once $item->getRealPath();
+                if (!class_exists($fqcn, false)) {
+                    include_once $item->getRealPath();
+                }
 
-                if (class_exists($relativeFQCN, false)) {
-                    $rc = new ReflectionClass($relativeFQCN);
-                    if ($rc->isSubclassOf(Model::class)) {
-                        $out[] = $rc;
+                if (class_exists($fqcn, false)) {
+                    if (is_subclass_of($fqcn, Model::class)) {
+                        $out[] = $fqcn;
                     }
                 }
             }
@@ -158,24 +74,60 @@ class ModelUtils
     }
 
 
+    protected $model;
+    protected $reflectionClass;
+
+    protected $visibleMap;
+    protected $hiddenMap;
+
+    protected $metadata;
 
 
+    public function __construct($classOrObj)
+    {
+        if (is_string($classOrObj)) {
+            $this->model = resolve($classOrObj); // laravel resolve() helper
+        } else if (is_a($classOrObj, Model::class)) {
+            $this->model = $classOrObj;
+        } else if ($classOrObj instanceof ReflectionClass) {
+            $this->model = resolve($classOrObj->getName());
+        }
 
-    //new ---------------------------------------
+        if ($classOrObj instanceof ReflectionClass) {
+            $this->reflectionClass = $classOrObj;
+        } else {
+            $this->reflectionClass = new ReflectionClass($this->model);
+        }
+
+        if (!is_a($this->model, Model::class)) {
+            throw new \Exception("$classOrObj is not a Model");
+        }
+    }
+
+
+    public function getReflectionClass()
+    {
+        return $this->reflectionClass;
+    }
+    public function getTypesGeneric()
+    {
+        return $this->types;
+    }
+
 
     public function isVisible($f)
     {
         if (!isset($this->hiddenMap)) {
-            $this->hiddenMap = empty($this->model->getHidden()) ? false : array_flip($this->model->getHidden());
-            $this->visibleMap = empty($this->model->getVisible()) ? false : array_flip($this->model->getVisible());
+            $this->hiddenMap = empty($this->model->getHidden()) ? false : array_fill_keys($this->model->getHidden(), true);
+            $this->visibleMap = empty($this->model->getVisible()) ? false : array_fill_keys($this->model->getVisible(), true);
         }
 
         $is_visible = true;
 
-        if ($this->visibleMap && !isset($this->visibleMap[$f])) {
+        if ($this->visibleMap && empty($this->visibleMap[$f])) {
             $is_visible = false;
         }
-        if ($this->hiddenMap && isset($this->hiddenMap[$f])) {
+        if ($this->hiddenMap && !empty($this->hiddenMap[$f])) {
             $is_visible = false;
         }
 
@@ -184,22 +136,65 @@ class ModelUtils
 
 
 
-    public function getValidationRules()
+    public function getValidationRules($alsoNotFillables = false)
     {
-        /* $this->getDatabaseMetadata()->mapWithKeys(function (Column $col, $name) {
-            return [$name => ''];
-        }); */
+        ['accessors' => $accessors, 'columns' => $columns] = $this->getMetadata();
+
+        $tmp = $accessors->merge($columns);
+
+        if ($alsoNotFillables) {
+            $tmp = $tmp->where('fillable', '=', true);
+        }
+
+        return $tmp->map(function ($item, $key) {
+            $rules = [];
+            switch ($item['type']) {
+                case 'integer':
+                    $rules[] = 'integer';
+                    break;
+                case 'float':
+                    $rules[] = 'numeric';
+                    break;
+                case 'string':
+                case 'blob':
+                    $rules[] = 'string';
+                    $rules[] = "max:" . $item['length'];
+                    break;
+                case 'date':
+                    $rules[] = 'date_format:Y-m-d';
+                    break;
+                case 'datetime':
+                    $rules[] = 'date_format:Y-m-d H:i:s';
+                    break;
+                case 'time':
+                    $rules[] = 'date_format:H:i:s';
+                    break;
+                case 'json':
+                    $rules[] = 'json';
+                    break;
+                default:
+
+                    break;
+            }
+
+            return $rules;
+        });
     }
 
 
-    public function getProperties()
+    public function getMetadata($reload = false)
     {
-        $accessors = $this->getPropertiesFromMethods();
-        $db_meta = $this->getDatabaseMetadata();
-        $columns = $db_meta['columns'];
-        $indexes = $db_meta['indexes'];
+        if ($reload || !isset($this->metadata)) {
 
-        return compact('accessors', 'columns', 'indexes');
+            $accessors = $this->getPropertiesFromMethods();
+            $db_meta = $this->getDatabaseMetadata();
+            $columns = $db_meta['columns'];
+            $indexes = $db_meta['indexes'];
+
+            $this->metadata = compact('accessors', 'columns', 'indexes');
+        }
+
+        return $this->metadata;
     }
 
     public function getDatabaseMetadata()
@@ -233,16 +228,23 @@ class ModelUtils
         $indexes = $this->mapIndexes($tableObj->getIndexes());
         $indexedCols = $this->getIndexedCols($indexes);
 
+        $castTypes = [];
+        if (method_exists($this->model, 'getCasts')) {
+            $castTypes = $this->getCastPropertiesTypes();
+        }
+
         $columns = collect($schema->listTableColumns(
             $table,
             $database
-        ))->mapWithKeys(function (Column $col, $name) use ($indexedCols) {
+        ))->mapWithKeys(function (Column $col, $name) use ($indexedCols, $castTypes) {
             /** @var Type */
             $type = $col->getType();
+            $castType = $castTypes[$name] ?? null;
             return [$name => [
                 'name' => $name,
-                'type' => static::$doctrineTypeMap[$type->getName()],
-                'phptype' => $this->dbTypeToPhp($type->getName()),
+                'type' => isset($castType) ? $this->phpTypeToGeneric($castType) : $this->doctrineTypeMap[$type->getName()],
+                'srvtype' => $castType ?? $this->dbTypeToPhp($type->getName()),
+                'dbtype' => $type->getName(),
                 'length' => $col->getLength(),
                 'nullable' => !$col->getNotnull(),
                 'default' => $col->getDefault(),
@@ -280,10 +282,11 @@ class ModelUtils
                     $name = Str::snake(substr($method, 3, -9));
                     if (!empty($name)) {
                         $reflection = new \ReflectionMethod($this->model, $method);
-                        $type = $this->getReturnType($reflection);
+                        $srvtype = $this->getReturnType($reflection);
+                        $type = $this->phpTypeToGeneric($srvtype);
                         $fillable = false;
 
-                        $out[] = compact('name', 'type', 'fillable');
+                        $out[] = compact('name', 'type', 'srvtype', 'fillable');
                     }
                 }
             }
@@ -295,7 +298,7 @@ class ModelUtils
     }
 
 
-    private function getIndexedCols($indexes)
+    protected function getIndexedCols($indexes)
     {
         return $indexes->reduce(function ($carry, $item) {
             if (empty($item['flags']['fulltext']) && count($item['columns']) === 1) {
@@ -307,7 +310,7 @@ class ModelUtils
         }, []);
     }
 
-    private function mapIndexes($index)
+    protected function mapIndexes($index)
     {
         if ($index instanceof Index) {
             return [
@@ -409,6 +412,27 @@ class ModelUtils
     }
 
 
+    function phpTypeToGeneric($type)
+    {
+        switch ($type) {
+            case 'mixed':
+            case 'string':
+                return 'string';
+            case 'DateTime';
+            case 'Carbon\\Carbon';
+                return 'datetime';
+            case 'integer':
+                return 'integer';
+            case 'float':
+                return 'float';
+            case 'boolean':
+                return 'boolean';
+            case 'boolean':
+                return 'boolean';
+        }
+        return 'json';
+    }
+
     function dbTypeToPhp($type)
     {
         switch ($type) {
@@ -448,4 +472,153 @@ class ModelUtils
 
         return $type;
     }
+
+    /**
+     * cast the properties's type from $casts.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     */
+    protected function getCastPropertiesTypes()
+    {
+        $props = [];
+        $casts = $this->model->getCasts();
+
+        foreach ($casts as $name => $type) {
+            switch ($type) {
+                case 'boolean':
+                case 'bool':
+                    $realType = 'boolean';
+                    break;
+                case 'string':
+                    $realType = 'string';
+                    break;
+                case 'array':
+                case 'json':
+                    $realType = 'array';
+                    break;
+                case 'object':
+                    $realType = 'object';
+                    break;
+                case 'int':
+                case 'integer':
+                case 'timestamp':
+                    $realType = 'integer';
+                    break;
+                case 'real':
+                case 'double':
+                case 'float':
+                    $realType = 'float';
+                    break;
+                case 'date':
+                case 'datetime':
+                    $realType = DateTime::class;
+                    break;
+                case 'collection':
+                    $realType = '\Illuminate\Support\Collection';
+                    break;
+                default:
+                    // In case of an optional custom cast parameter , only evaluate
+                    // the `$type` until the `:`
+                    $type = strtok($type, ':');
+                    $realType = class_exists($type) ? ('\\' . $type) : 'mixed';
+                    break;
+            }
+
+            $realType = $this->checkForCustomLaravelCasts($realType);
+            $props[$name] = $this->getTypeInModel($this->model, $realType);
+        }
+
+        return $props;
+    }
+
+    /**
+     * @param  string  $type
+     * @return string|null
+     * @throws \ReflectionException
+     */
+    protected function checkForCustomLaravelCasts(string $type): ?string
+    {
+        if (!class_exists($type) || !interface_exists(CastsAttributes::class)) {
+            return $type;
+        }
+
+        $reflection = new \ReflectionClass($type);
+
+        if (!$reflection->implementsInterface(CastsAttributes::class)) {
+            return $type;
+        }
+
+        $methodReflection = new \ReflectionMethod($type, 'get');
+
+        $reflectionType = $this->getReturnTypeFromReflection($methodReflection);
+
+        if ($reflectionType === null) {
+            $reflectionType = $this->getReturnTypeFromDocBlock($methodReflection);
+        }
+
+        if ($reflectionType === 'static' || $reflectionType === '$this') {
+            $reflectionType = $type;
+        }
+
+        return $reflectionType;
+    }
+
+
+    protected function getTypeInModel(object $model, ?string $type): ?string
+    {
+        if ($type === null) {
+            return null;
+        }
+
+        if (class_exists($type)) {
+            $type = $this->getClassNameInDestinationFile($model, $type);
+        }
+
+        return $type;
+    }
+
+    protected function getClassNameInDestinationFile(object $model, string $className): string
+    {
+        $reflection = $model instanceof ReflectionClass
+            ? $model
+            : new ReflectionObject($model);
+
+        $className = trim($className, '\\');
+
+        return  $className;
+    }
+
+
+    protected $doctrineTypeMap = [
+        "bigint" => 'integer',
+        "integer" => 'integer',
+        "smallint" => 'integer',
+        "float" => 'float',
+        "decimal" => 'float',
+        "boolean" => 'boolean',
+        "time" => 'time',
+        "datetime" => 'datetime',
+        "date" => 'date',
+        "json" => 'json',
+        "text" => 'string',
+        "string" => 'string',
+        "blob" => 'blob',
+    ];
+
+    protected $types = [
+        'integer',
+        'float',
+        'string',
+        'boolean',
+        'date',
+        'datetime',
+        'timestamp',
+        'time',
+        'year',
+        'text',
+        'blob',
+        'enum',
+        'json',
+        'relation',
+    ];
 }
