@@ -1,53 +1,45 @@
 {
-    "name": "ivanomatteo/model-utils",
-    "description": "Extract info from models, generate laravel factories, generate phpdoc comment with property name for type hinting",
+    "name": ":vendor_slug/:package_slug",
+    "description": ":package_description",
     "keywords": [
-        "ivanomatteo",
-        "model-utils"
+        ":vendor_name",
+        ":package_slug"
     ],
-    "homepage": "https://github.com/ivanomatteo/model-utils",
+    "homepage": "https://github.com/:vendor_slug/:package_slug",
     "license": "MIT",
-    "type": "library",
     "authors": [
         {
-            "name": "Ivano Matteo",
-            "email": "ivanomatteo@gmail.com",
+            "name": ":author_name",
+            "email": "author@domain.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^7.1 || ^8.0",
-        "barryvdh/reflection-docblock": "^2.0.6",
-        "phpdocumentor/type-resolver": "^1.1.0",
-        "doctrine/dbal": "^2.6 || ^3",
-        "illuminate/support": "^6 || ^7 || ^8"
+        "php": "^8.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^4.0",
-        "phpunit/phpunit": "^8.0"
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "pestphp/pest": "^1.20",
+        "spatie/ray": "^1.28"
     },
     "autoload": {
         "psr-4": {
-            "IvanoMatteo\\ModelUtils\\": "src"
+            "VendorName\\Skeleton\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "IvanoMatteo\\ModelUtils\\Tests\\": "tests"
+            "VendorName\\Skeleton\\Tests\\": "tests"
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
     },
     "config": {
         "sort-packages": true
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "IvanoMatteo\\ModelUtils\\ModelUtilsServiceProvider"
-            ]
-        }
-    }
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

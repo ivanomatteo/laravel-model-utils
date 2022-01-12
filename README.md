@@ -1,80 +1,66 @@
-# Laravel model utils
+# :package_description
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
+[![Tests](https://github.com/:vendor_slug/:package_slug/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/:vendor_slug/:package_slug/actions/workflows/run-tests.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
+<!--delete-->
+---
+This package can be used as to scaffold a framework agnostic package. Follow these steps to get started:
 
-[![Total Downloads](https://img.shields.io/packagist/dt/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
+1. Press the "Use template" button at the top of this repo to create a new repo with the contents of this skeleton
+2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files
+3. Have fun creating your package.
+4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
+---
+<!--/delete-->
+This is where your description should go. Try and limit it to a paragraph or two. Consider adding a small example.
 
-This package provide a simple way to retrive usefull metadata from laravel models
+## Support us
 
--   find all models inside a psr-4 directory structure
--   retrieve all columns and metadata from database
--   retrieve indexes metadata
--   generate basic validation rules using metadata
--   model type hinting removed, you can use https://github.com/barryvdh/laravel-ide-helper
+[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/:package_name.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/:package_name)
+
+We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+
+We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
 
 ## Installation
-
-If you are using laravel version < 8 then install "doctrine/dbal:^2.6" first
-
-```bash
-composer require doctrine/dbal:^2.6
-```
 
 You can install the package via composer:
 
 ```bash
-composer require ivanomatteo/model-utils
+composer require :vendor_slug/:package_slug
 ```
 
 ## Usage
 
-
 ```php
-use IvanoMatteo\ModelUtils\ModelUtils;
-
-dump(ModelUtils::findModels());
-
-$mu = new ModelUtils(\App\User::class);
-
-dump('id visible:',$mu->isVisible('id'));
-dump('password visible:',$mu->isVisible('password'));
-
-dump($mu->getValidationRules());
-dump($mu->getValidationRules(true)); //also for not fillable fields
-
-dump($mu->getMetadata());
-
-
+$skeleton = new VendorName\Skeleton();
+echo $skeleton->echoPhrase('Hello, VendorName!');
 ```
 
-### Testing
+## Testing
 
 ```bash
 composer test
 ```
 
-### Changelog
+## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
-### Security
+## Security Vulnerabilities
 
-If you discover any security related issues, please email ivanomatteo@gmail.com instead of using the issue tracker.
+Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
 
 ## Credits
 
--   [Ivano Matteo](https://github.com/ivanomatteo)
--   Thanks also to [Barry vd. Heuvel](https://github.com/barryvdh) for his libraries, I took some pices of code from ide helper
--   [All Contributors](../../contributors)
+- [:author_name](https://github.com/:author_username)
+- [All Contributors](../../contributors)
 
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Laravel Package Boilerplate
-
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
