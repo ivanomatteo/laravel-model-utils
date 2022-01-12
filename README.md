@@ -5,17 +5,22 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/model-utils/Check%20&%20fix%20styling?label=code%20style)](https://github.com/ivanomatteo/model-utils/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+This package provide a simple way to retrive usefull metadata from laravel models
 
-## Support us
+-   find all models inside a psr-4 directory structure
+-   retrieve all columns and metadata from database
+-   retrieve indexes metadata
+-   generate basic validation rules using metadata
+-   model type hinting removed, you can use https://github.com/barryvdh/laravel-ide-helper
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/model-utils.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/model-utils)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
 
 ## Installation
+
+If you are using laravel version < 8 then install "doctrine/dbal:^2.6" first
+
+```bash
+composer require doctrine/dbal:^2.6
+```
 
 You can install the package via composer:
 
@@ -23,37 +28,25 @@ You can install the package via composer:
 composer require ivanomatteo/model-utils
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="model-utils-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="model-utils-config"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="model-utils-views"
-```
-
 ## Usage
 
+
 ```php
-$modelUtils = new IvanoMatteo\ModelUtils();
-echo $modelUtils->echoPhrase('Hello, IvanoMatteo!');
+use IvanoMatteo\ModelUtils\ModelUtils;
+
+dump(ModelUtils::findModels());
+
+$mu = new ModelUtils(\App\User::class);
+
+dump('id visible:',$mu->isVisible('id'));
+dump('password visible:',$mu->isVisible('password'));
+
+dump($mu->getValidationRules());
+dump($mu->getValidationRules(true)); //also for not fillable fields
+
+dump($mu->getMetadata());
+
+
 ```
 
 ## Testing
