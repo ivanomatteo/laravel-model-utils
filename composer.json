@@ -1,17 +1,17 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "ivanomatteo/model-utils",
+    "description": "Extract info from models, generate laravel factories, generate phpdoc comment with property name for type hinting",
     "keywords": [
-        ":vendor_name",
+        "ivanomatteo",
         "laravel",
-        ":package_slug"
+        "model-utils"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/ivanomatteo/model-utils",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Ivano Matteo",
+            "email": "ivanomatteo@gmail.com",
             "role": "Developer"
         }
     ],
@@ -34,13 +34,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories"
+            "IvanoMatteo\\ModelUtils\\": "src",
+            "IvanoMatteo\\ModelUtils\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests"
+            "IvanoMatteo\\ModelUtils\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -49,15 +49,19 @@
         "test-coverage": "vendor/bin/pest coverage"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "IvanoMatteo\\ModelUtils\\ModelUtilsServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "ModelUtils": "IvanoMatteo\\ModelUtils\\Facades\\ModelUtils"
             }
         }
     },
