@@ -2,18 +2,18 @@
 
 namespace IvanoMatteo\ModelUtils;
 
-use Illuminate\Database\Eloquent\Model;
-use ReflectionClass;
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Schema\Column;
-use Illuminate\Support\Str;
-use ReflectionNamedType;
-use phpDocumentor\Reflection\Types\ContextFactory;
-use Barryvdh\Reflection\DocBlock\Context;
 use Barryvdh\Reflection\DocBlock;
+use Barryvdh\Reflection\DocBlock\Context;
 use DateTime;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use phpDocumentor\Reflection\Types\ContextFactory;
+use ReflectionClass;
+use ReflectionNamedType;
 use ReflectionObject;
 use ReflectionType;
 
@@ -27,7 +27,7 @@ class ModelUtils
      */
     public static function findModels($basePath = null, $baseNamespace = "App")
     {
-        if (!isset($basePath)) {
+        if (! isset($basePath)) {
             $basePath = app_path('');
         }
         $baseNamespace = preg_replace("/^\\\\/", '', $baseNamespace);
@@ -59,7 +59,7 @@ class ModelUtils
                     $fqcn = substr($fqcn, 1, strlen($fqcn) - 1);
                 }
 
-                if (!class_exists($fqcn, false)) {
+                if (! class_exists($fqcn, false)) {
                     include_once $item->getRealPath();
                 }
 
@@ -70,6 +70,7 @@ class ModelUtils
                 }
             }
         }
+
         return $out;
     }
 
@@ -82,14 +83,13 @@ class ModelUtils
 
     protected $metadata;
 
-
     public function __construct($classOrObj)
     {
         if (is_string($classOrObj)) {
             $this->model = resolve($classOrObj); // laravel resolve() helper
-        } else if (is_a($classOrObj, Model::class)) {
+        } elseif (is_a($classOrObj, Model::class)) {
             $this->model = $classOrObj;
-        } else if ($classOrObj instanceof ReflectionClass) {
+        } elseif ($classOrObj instanceof ReflectionClass) {
             $this->model = resolve($classOrObj->getName());
         }
 
@@ -99,25 +99,24 @@ class ModelUtils
             $this->reflectionClass = new ReflectionClass($this->model);
         }
 
-        if (!is_a($this->model, Model::class)) {
+        if (! is_a($this->model, Model::class)) {
             throw new \Exception("$classOrObj is not a Model");
         }
     }
-
 
     public function getReflectionClass()
     {
         return $this->reflectionClass;
     }
+
     public function getTypesGeneric()
     {
         return $this->types;
     }
 
-
     public function isVisible($f)
     {
-        if (!isset($this->hiddenMap)) {
+        if (! isset($this->hiddenMap)) {
             $this->hiddenMap = empty($this->model->getHidden()) ? false : array_fill_keys($this->model->getHidden(), true);
             $this->visibleMap = empty($this->model->getVisible()) ? false : array_fill_keys($this->model->getVisible(), true);
         }
@@ -127,14 +126,12 @@ class ModelUtils
         if ($this->visibleMap && empty($this->visibleMap[$f])) {
             $is_visible = false;
         }
-        if ($this->hiddenMap && !empty($this->hiddenMap[$f])) {
+        if ($this->hiddenMap && ! empty($this->hiddenMap[$f])) {
             $is_visible = false;
         }
 
         return $is_visible;
     }
-
-
 
     public function getValidationRules($alsoNotFillables = false)
     {
@@ -151,26 +148,33 @@ class ModelUtils
             switch ($item['type']) {
                 case 'integer':
                     $rules[] = 'integer';
+
                     break;
                 case 'float':
                     $rules[] = 'numeric';
+
                     break;
                 case 'string':
                 case 'blob':
                     $rules[] = 'string';
                     $rules[] = "max:" . $item['length'];
+
                     break;
                 case 'date':
                     $rules[] = 'date_format:Y-m-d';
+
                     break;
                 case 'datetime':
                     $rules[] = 'date_format:Y-m-d H:i:s';
+
                     break;
                 case 'time':
                     $rules[] = 'date_format:H:i:s';
+
                     break;
                 case 'json':
                     $rules[] = 'json';
+
                     break;
                 default:
 
@@ -181,11 +185,9 @@ class ModelUtils
         });
     }
 
-
     public function getMetadata($reload = false)
     {
-        if ($reload || !isset($this->metadata)) {
-
+        if ($reload || ! isset($this->metadata)) {
             $accessors = $this->getPropertiesFromMethods();
             $db_meta = $this->getDatabaseMetadata();
             $columns = $db_meta['columns'];
@@ -210,7 +212,7 @@ class ModelUtils
 
         $defDatabaseName = $conn->getDatabaseName();
 
-        if (!empty($database)) {
+        if (! empty($database)) {
             $conn->setDatabaseName($database);
         } else {
             $database = $defDatabaseName;
@@ -240,13 +242,14 @@ class ModelUtils
             /** @var Type */
             $type = $col->getType();
             $castType = $castTypes[$name] ?? null;
+
             return [$name => [
                 'name' => $name,
                 'type' => isset($castType) ? $this->phpTypeToGeneric($castType) : $this->doctrineTypeMap[$type->getName()],
                 'srvtype' => $castType ?? $this->dbTypeToPhp($type->getName()),
                 'dbtype' => $type->getName(),
                 'length' => $col->getLength(),
-                'nullable' => !$col->getNotnull(),
+                'nullable' => ! $col->getNotnull(),
                 'default' => $col->getDefault(),
                 'autoincrement' => $col->getAutoincrement(),
                 'unsigned' => $col->getUnsigned(),
@@ -260,9 +263,6 @@ class ModelUtils
 
         return compact('columns', 'indexes');
     }
-
-
-
 
     /**
      * @param \Illuminate\Database\Eloquent\Model $model
@@ -280,7 +280,7 @@ class ModelUtils
                     $method !== 'getAttribute'
                 ) {
                     $name = Str::snake(substr($method, 3, -9));
-                    if (!empty($name)) {
+                    if (! empty($name)) {
                         $reflection = new \ReflectionMethod($this->model, $method);
                         $srvtype = $this->getReturnType($reflection);
                         $type = $this->phpTypeToGeneric($srvtype);
@@ -297,7 +297,6 @@ class ModelUtils
         });
     }
 
-
     protected function getIndexedCols($indexes)
     {
         return $indexes->reduce(function ($carry, $item) {
@@ -306,6 +305,7 @@ class ModelUtils
                     $carry[$col] = $item['primary'] ? 'primary' : ($item['unique'] ? 'key' : 'index');
                 }
             }
+
             return $carry;
         }, []);
     }
@@ -320,7 +320,7 @@ class ModelUtils
                 'flags' => array_fill_keys($index->getFlags(), true),
                 'columns' => array_fill_keys($index->getColumns(), true),
             ];
-        } else if (is_array($index)) {
+        } elseif (is_array($index)) {
             return collect($index)->map(function ($item) {
                 return $this->mapIndexes($item);
             });
@@ -328,8 +328,6 @@ class ModelUtils
             return collect([]);
         }
     }
-
-
 
     protected function getReturnType(\ReflectionMethod $reflection): ?string
     {
@@ -368,7 +366,7 @@ class ModelUtils
     protected function getReturnTypeFromReflection(\ReflectionMethod $reflection): ?string
     {
         $returnType = $reflection->getReturnType();
-        if (!$returnType) {
+        if (! $returnType) {
             return null;
         }
 
@@ -404,22 +402,21 @@ class ModelUtils
     protected function getReflectionNamedType(ReflectionNamedType $paramType): string
     {
         $parameterName = $paramType->getName();
-        if (!$paramType->isBuiltin()) {
+        if (! $paramType->isBuiltin()) {
             $parameterName = '\\' . $parameterName;
         }
 
         return $parameterName;
     }
 
-
-    function phpTypeToGeneric($type)
+    public function phpTypeToGeneric($type)
     {
         switch ($type) {
             case 'mixed':
             case 'string':
                 return 'string';
-            case 'DateTime';
-            case 'Carbon\\Carbon';
+            case 'DateTime':
+            case 'Carbon\\Carbon':
                 return 'datetime';
             case 'integer':
                 return 'integer';
@@ -430,10 +427,11 @@ class ModelUtils
             case 'boolean':
                 return 'boolean';
         }
+
         return 'json';
     }
 
-    function dbTypeToPhp($type)
+    public function dbTypeToPhp($type)
     {
         switch ($type) {
             case 'string':
@@ -445,28 +443,35 @@ class ModelUtils
             case 'datetime':
             case 'decimal':
                 $type = 'string';
+
                 break;
             case 'integer':
             case 'bigint':
             case 'smallint':
                 $type = 'integer';
+
                 break;
             case 'boolean':
                 switch (config('database.default')) {
                     case 'sqlite':
                     case 'mysql':
                         $type = 'integer';
+
                         break;
                     default:
                         $type = 'boolean';
+
                         break;
                 }
+
                 break;
             case 'float':
                 $type = 'float';
+
                 break;
             default:
                 $type = 'mixed';
+
                 break;
         }
 
@@ -488,39 +493,48 @@ class ModelUtils
                 case 'boolean':
                 case 'bool':
                     $realType = 'boolean';
+
                     break;
                 case 'string':
                     $realType = 'string';
+
                     break;
                 case 'array':
                 case 'json':
                     $realType = 'array';
+
                     break;
                 case 'object':
                     $realType = 'object';
+
                     break;
                 case 'int':
                 case 'integer':
                 case 'timestamp':
                     $realType = 'integer';
+
                     break;
                 case 'real':
                 case 'double':
                 case 'float':
                     $realType = 'float';
+
                     break;
                 case 'date':
                 case 'datetime':
                     $realType = DateTime::class;
+
                     break;
                 case 'collection':
                     $realType = '\Illuminate\Support\Collection';
+
                     break;
                 default:
                     // In case of an optional custom cast parameter , only evaluate
                     // the `$type` until the `:`
                     $type = strtok($type, ':');
                     $realType = class_exists($type) ? ('\\' . $type) : 'mixed';
+
                     break;
             }
 
@@ -538,13 +552,13 @@ class ModelUtils
      */
     protected function checkForCustomLaravelCasts(string $type): ?string
     {
-        if (!class_exists($type) || !interface_exists(CastsAttributes::class)) {
+        if (! class_exists($type) || ! interface_exists(CastsAttributes::class)) {
             return $type;
         }
 
         $reflection = new \ReflectionClass($type);
 
-        if (!$reflection->implementsInterface(CastsAttributes::class)) {
+        if (! $reflection->implementsInterface(CastsAttributes::class)) {
             return $type;
         }
 
@@ -562,7 +576,6 @@ class ModelUtils
 
         return $reflectionType;
     }
-
 
     protected function getTypeInModel(object $model, ?string $type): ?string
     {

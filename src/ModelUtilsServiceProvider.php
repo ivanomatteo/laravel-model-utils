@@ -4,7 +4,6 @@ namespace IvanoMatteo\ModelUtils;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use IvanoMatteo\ModelUtils\Commands\ModelUtilsCommand;
 
 class ModelUtilsServiceProvider extends PackageServiceProvider
 {
