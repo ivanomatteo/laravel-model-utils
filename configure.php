@@ -60,13 +60,52 @@ function replace_in_file(string $file, array $replacements): void {
     );
 }
 
-function removeReadmeParagraphs(string $file): void {
+function remove_prefix(string $prefix, string $content): string {
+    if (str_starts_with($content, $prefix)) {
+        return substr($content, strlen($prefix));
+    }
+
+    return $content;
+}
+
+function remove_composer_deps(array $names) {
+    $data = json_decode(file_get_contents(__DIR__.'/composer.json'), true);
+
+    foreach($data['require-dev'] as $name => $version) {
+        if (in_array($name, $names, true)) {
+            unset($data['require-dev'][$name]);
+        }
+    }
+
+    file_put_contents(__DIR__.'/composer.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
+function remove_composer_script($scriptName) {
+    $data = json_decode(file_get_contents(__DIR__.'/composer.json'), true);
+
+    foreach($data['scripts'] as $name => $script) {
+        if ($scriptName === $name) {
+            unset($data['scripts'][$name]);
+            break;
+        }
+    }
+
+    file_put_contents(__DIR__.'/composer.json', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+}
+
+function remove_readme_paragraphs(string $file): void {
     $contents = file_get_contents($file);
 
     file_put_contents(
         $file,
         preg_replace('/<!--delete-->.*<!--\/delete-->/s', '', $contents) ?: $contents
     );
+}
+
+function safeUnlink(string $filename) {
+    if (file_exists($filename) && is_file($filename)) {
+        unlink($filename);
+    }
 }
 
 function determineSeparator(string $path): string {
@@ -102,10 +141,16 @@ $folderName = basename($currentDirectory);
 
 $packageName = ask('Package name', $folderName);
 $packageSlug = slugify($packageName);
+$packageSlugWithoutPrefix = remove_prefix('laravel-', $packageSlug);
 
 $className = title_case($packageName);
 $className = ask('Class name', $className);
+$variableName = lcfirst($className);
 $description = ask('Package description', "This is my package {$packageSlug}");
+
+$usePhpStan = confirm('Enable PhpStan?', true);
+$usePhpCsFixer = confirm('Enable PhpCsFixer?', true);
+$useUpdateChangelogWorkflow = confirm('Use automatic changelog updater workflow?', true);
 
 writeln('------');
 writeln("Author     : {$authorName} ({$authorUsername}, {$authorEmail})");
@@ -113,6 +158,11 @@ writeln("Vendor     : {$vendorName} ({$vendorSlug})");
 writeln("Package    : {$packageSlug} <{$description}>");
 writeln("Namespace  : {$vendorNamespace}\\{$className}");
 writeln("Class name : {$className}");
+writeln("---");
+writeln("Packages & Utilities");
+writeln("Use PhpCsFixer       : " . ($usePhpCsFixer ? 'yes' : 'no'));
+writeln("Use Larastan/PhpStan : " . ($usePhpStan ? 'yes' : 'no'));
+writeln("Use Auto-Changelog   : " . ($useUpdateChangelogWorkflow ? 'yes' : 'no'));
 writeln('------');
 
 writeln('This script will replace the above values in all relevant files in the project directory.');
@@ -133,16 +183,47 @@ foreach ($files as $file) {
         'VendorName' => $vendorNamespace,
         ':package_name' => $packageName,
         ':package_slug' => $packageSlug,
+        ':package_slug_without_prefix' => $packageSlugWithoutPrefix,
         'Skeleton' => $className,
+        'skeleton' => $packageSlug,
+        'variable' => $variableName,
         ':package_description' => $description,
     ]);
 
     match (true) {
-        str_contains($file, determineSeparator('src/SkeletonClass.php')) => rename($file, determineSeparator('./src/' . $className . 'Class.php')),
-        str_contains($file, 'README.md') => removeReadmeParagraphs($file),
+        str_contains($file, determineSeparator('src/Skeleton.php')) => rename($file, determineSeparator('./src/' . $className . '.php')),
+        str_contains($file, determineSeparator('src/SkeletonServiceProvider.php')) => rename($file, determineSeparator('./src/' . $className . 'ServiceProvider.php')),
+        str_contains($file, determineSeparator('src/Facades/Skeleton.php')) => rename($file, determineSeparator('./src/Facades/' . $className . '.php')),
+        str_contains($file, determineSeparator('src/Commands/SkeletonCommand.php')) => rename($file, determineSeparator('./src/Commands/' . $className . 'Command.php')),
+        str_contains($file, determineSeparator('database/migrations/create_skeleton_table.php.stub')) => rename($file, determineSeparator('./database/migrations/create_' . $packageSlugWithoutPrefix . '_table.php.stub')),
+        str_contains($file, determineSeparator('config/skeleton.php')) => rename($file, determineSeparator('./config/' . $packageSlugWithoutPrefix . '.php')),
+        str_contains($file, 'README.md') => remove_readme_paragraphs($file),
         default => [],
     };
+}
 
+if (! $usePhpCsFixer) {
+    safeUnlink(__DIR__ . '/.php_cs.dist.php');
+    safeUnlink(__DIR__ . '/.github/workflows/php-cs-fixer.yml');
+}
+
+if (! $usePhpStan) {
+    safeUnlink(__DIR__ . '/phpstan.neon.dist');
+    safeUnlink(__DIR__ . '/phpstan-baseline.neon');
+    safeUnlink(__DIR__ . '/.github/workflows/phpstan.yml');
+
+    remove_composer_deps([
+        'phpstan/extension-installer',
+        'phpstan/phpstan-deprecation-rules',
+        'phpstan/phpstan-phpunit',
+        'nunomaduro/larastan',
+    ]);
+
+    remove_composer_script('phpstan');
+}
+
+if (! $useUpdateChangelogWorkflow) {
+    safeUnlink(__DIR__ . '/.github/workflows/update-changelog.yml');
 }
 
 confirm('Execute `composer install` and run tests?') && run('composer install && composer test');
