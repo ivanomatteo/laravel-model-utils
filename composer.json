@@ -59,10 +59,7 @@
         "laravel": {
             "providers": [
                 "IvanoMatteo\\ModelUtils\\ModelUtilsServiceProvider"
-            ],
-            "aliases": {
-                "ModelUtils": "IvanoMatteo\\ModelUtils\\Facades\\ModelUtils"
-            }
+            ]
         }
     },
     "minimum-stability": "dev",

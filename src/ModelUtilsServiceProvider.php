@@ -17,9 +17,6 @@ class ModelUtilsServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('model-utils')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_model-utils_table')
-            ->hasCommand(ModelUtilsCommand::class);
+            ->hasConfigFile();
     }
 }
