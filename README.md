@@ -16,12 +16,6 @@ This package provide a simple way to retrive usefull metadata from laravel model
 
 ## Installation
 
-If you are using laravel version < 8 then install "doctrine/dbal:^2.6" first
-
-```bash
-composer require doctrine/dbal:^2.6
-```
-
 You can install the package via composer:
 
 ```bash
