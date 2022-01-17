@@ -1,9 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils\Traits;
 
-use Exception;
 use Illuminate\Support\Collection;
 
 /**
@@ -32,11 +32,11 @@ trait DatabaseMetadata
                         'type' => $col->getType()->getName(),
                         'autoincrement' => $col->getAutoincrement(),
                         'length' => $col->getLength(),
-                        'nullable' => !$col->getNotnull(),
+                        'nullable' => ! $col->getNotnull(),
                         'default' => $col->getDefault(),
                         'precision' => $col->getPrecision(),
                         'options' => $col->getPlatformOptions(),
-                    ]
+                    ],
                 ];
             });
 
@@ -52,7 +52,7 @@ trait DatabaseMetadata
     }
 
     /** @return array[] */
-    function getDatabaseIndexes()
+    public function getDatabaseIndexes()
     {
         $table = $this->getTable();
         $parts = array_reverse(explode('.', $table));
@@ -75,7 +75,7 @@ trait DatabaseMetadata
                         'unique' => $ind->isUnique(),
                         'options' => $ind->getOptions(),
                         'flags' => $ind->getFlags(),
-                    ]
+                    ],
                 ];
             })->toArray();
     }

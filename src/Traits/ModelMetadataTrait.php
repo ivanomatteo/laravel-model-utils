@@ -15,10 +15,9 @@ trait ModelMetadataTrait
     use DatabaseMetadata;
     use ReflectionMetadata;
 
-
     public function getAttributesMetadata($all = false)
     {
-        $typeMapper = new TypeMapper;
+        $typeMapper = new TypeMapper();
         $columns = $this->getDatabaseColumns($all);
         $accessors = $this->getPropertiesFromAccessors($all);
         $cast = $this->getCastPropertiesTypes();
@@ -26,7 +25,6 @@ trait ModelMetadataTrait
 
         foreach ($indexes as $name => $props) {
             if (count($props['columns']) === 1 && isset($columns[$props['columns'][0]])) {
-
                 $colName = $props['columns'][0];
 
                 $columns[$colName]['index'][] = $props;
@@ -45,6 +43,7 @@ trait ModelMetadataTrait
                 if (isset($cast[$item['name']])) {
                     $item['type'] = $typeMapper->phpToGeneric($cast[$item['name']]);
                 }
+
                 return $item;
             })->toArray();
 

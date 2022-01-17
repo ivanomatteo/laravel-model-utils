@@ -6,14 +6,7 @@ namespace IvanoMatteo\ModelUtils;
 
 use Barryvdh\Reflection\DocBlock;
 use Barryvdh\Reflection\DocBlock\Context;
-use Barryvdh\Reflection\DocBlock\Tag;
-use DateTime;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use phpDocumentor\Reflection\Types\ContextFactory;
 use ReflectionClass;
 use ReflectionMethod;
@@ -32,11 +25,11 @@ class ReflectionMetadata
         if ($type) {
             return $type;
         }
+
         return $this->getReturnTypeFromReflection($refMethod);
     }
 
-
-    public function getReturnTypeFromDocBlock(ReflectionMethod $refMethod):null|string
+    public function getReturnTypeFromDocBlock(ReflectionMethod $refMethod): null|string
     {
         $phpDocContext = (new ContextFactory())->createFromReflector($refMethod);
         $context = new Context(
@@ -47,17 +40,16 @@ class ReflectionMetadata
         $phpdoc = new DocBlock($refMethod, $context);
 
         if ($phpdoc->hasTag('return')) {
-
             $type = $phpdoc->getTagsByName('return')[0]->getType();
         }
+
         return $type;
     }
-
 
     public function getReturnTypeFromReflection(ReflectionMethod $refMethod): ?string
     {
         $returnType = $refMethod->getReturnType();
-        if (!$returnType) {
+        if (! $returnType) {
             return null;
         }
 
@@ -71,7 +63,6 @@ class ReflectionMetadata
 
         return $type;
     }
-
 
     protected function extractReflectionTypes(ReflectionType $reflection_type)
     {
@@ -91,17 +82,15 @@ class ReflectionMetadata
         return $types;
     }
 
-
     protected function getReflectionNamedType(ReflectionNamedType $paramType): string
     {
         $parameterName = $paramType->getName();
-        if (!$paramType->isBuiltin()) {
+        if (! $paramType->isBuiltin()) {
             $parameterName = '\\' . $parameterName;
         }
 
         return $parameterName;
     }
-
 
     public function getClassNameInDestinationFile(object $model, string $className): string
     {
@@ -111,7 +100,7 @@ class ReflectionMetadata
         ;
 
         $className = trim($className, '\\');
-        $writingToExternalFile = !$this->write || $this->write_mixin;
+        $writingToExternalFile = ! $this->write || $this->write_mixin;
         $classIsNotInExternalFile = $reflection->getName() !== $className;
 
         if (($writingToExternalFile && $classIsNotInExternalFile)) {
@@ -119,6 +108,7 @@ class ReflectionMetadata
         }
 
         $usedClassNames = $this->getUsedClassNames($reflection);
+
         return $usedClassNames[$className] ?? ('\\' . $className);
     }
 

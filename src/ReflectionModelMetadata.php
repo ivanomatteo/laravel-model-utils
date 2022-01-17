@@ -4,31 +4,19 @@ declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils;
 
-use Barryvdh\Reflection\DocBlock;
-use Barryvdh\Reflection\DocBlock\Context;
-use Barryvdh\Reflection\DocBlock\Tag;
 use DateTime;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use phpDocumentor\Reflection\Types\ContextFactory;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
-use ReflectionNamedType;
-use ReflectionObject;
-use ReflectionType;
 
 /**
  * @property Model $model
  */
 class ReflectionModelMetadata extends ReflectionMetadata
 {
-
     public function getPropertiesFromAccessors($class): array
     {
         $refClass = new ReflectionClass($class);
@@ -39,15 +27,14 @@ class ReflectionModelMetadata extends ReflectionMetadata
 
         return $accessors->map(function (array $accessor) use ($mutators) {
             unset($accessor['method']);
+
             return [
                 ...$accessor,
-                'has_mutator' => !empty($mutators[$accessor['name']]),
+                'has_mutator' => ! empty($mutators[$accessor['name']]),
                 'is_accessor' => true,
             ];
         })->toArray();
     }
-
-
 
     protected function filterModifier(Collection $methods, $prefix = 'get'): Collection
     {
@@ -58,24 +45,26 @@ class ReflectionModelMetadata extends ReflectionMetadata
         )->filter(function (ReflectionMethod $method) use ($prefix) {
             if ($prefix === 'set') {
                 $params = $method->getParameters();
-                return count($params) === 1 && !$params[0]->isOptional();
+
+                return count($params) === 1 && ! $params[0]->isOptional();
             }
+
             return true;
         })->mapWithKeys(function (ReflectionMethod $method) {
             $name = Str::snake(substr($method->getShortName(), 3, -9));
             if (empty($name)) {
                 return [];
             }
+
             return [
                 $name => [
                     'method' => $method,
                     'name' => $name,
-                    'type' => $this->getReturnType($method)
-                ]
+                    'type' => $this->getReturnType($method),
+                ],
             ];
         });
     }
-
 
     public function getCastPropertiesTypes(Model $model)
     {
@@ -121,12 +110,14 @@ class ReflectionModelMetadata extends ReflectionMetadata
                     break;
                 case 'collection':
                     $realType = '\Illuminate\Support\Collection';
+
                     break;
                 default:
                     // In case of an optional custom cast parameter , only evaluate
                     // the `$type` until the `:`
                     $type = strtok($type, ':');
                     $realType = class_exists($type) ? ('\\' . $type) : 'mixed';
+
                     break;
             }
 
@@ -155,13 +146,13 @@ class ReflectionModelMetadata extends ReflectionMetadata
      */
     protected function checkForCustomLaravelCasts(string $type): ?string
     {
-        if (!class_exists($type) || !interface_exists(CastsAttributes::class)) {
+        if (! class_exists($type) || ! interface_exists(CastsAttributes::class)) {
             return $type;
         }
 
         $reflection = new ReflectionClass($type);
 
-        if (!$reflection->implementsInterface(CastsAttributes::class)) {
+        if (! $reflection->implementsInterface(CastsAttributes::class)) {
             return $type;
         }
 
@@ -179,6 +170,4 @@ class ReflectionModelMetadata extends ReflectionMetadata
 
         return $reflectionType;
     }
-
-
 }

@@ -4,32 +4,13 @@ declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils;
 
-use Barryvdh\Reflection\DocBlock;
-use Barryvdh\Reflection\DocBlock\Context;
-use Barryvdh\Reflection\DocBlock\Tag;
-use DateTime;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
-use phpDocumentor\Reflection\Types\ContextFactory;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use ReflectionClass;
-use ReflectionMethod;
-use ReflectionNamedType;
-use ReflectionObject;
-use ReflectionType;
-use SplFileInfo;
 
 /**
  * @property Model $model
  */
 class ValidationUtil
 {
-
     public function getValidationRules($alsoNotFillables = false)
     {
         ['accessors' => $accessors, 'columns' => $columns] = $this->getMetadata();
@@ -81,5 +62,4 @@ class ValidationUtil
             return $rules;
         });
     }
-
 }
