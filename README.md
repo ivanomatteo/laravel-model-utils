@@ -64,6 +64,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 ## Credits
 
 - [Ivano Matteo](https://github.com/ivanomatteo)
+- Thanks also to [Barry vd. Heuvel](https://github.com/barryvdh) for his libraries, i took some pices of code from ide helper
 - [All Contributors](../../contributors)
 
 ## License
