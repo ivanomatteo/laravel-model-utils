@@ -10,8 +10,6 @@ use IvanoMatteo\ModelUtils\ReflectionModelMetadata;
 use IvanoMatteo\ModelUtils\Tests\Models\FooClass;
 use ReflectionClass;
 
-
-
 it('can read reflection metadata', function () {
     $refMeta = new ReflectionMetadata();
     $class = new ReflectionClass(FooClass::class);
@@ -77,5 +75,3 @@ it('can respect hidden attributes', function () {
     $res = $meta->getAttributesMetadata(true);
     expect($res['columns'])->toHaveKeys(['password']);
 });
-
-
