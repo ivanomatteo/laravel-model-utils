@@ -6,34 +6,32 @@ use IvanoMatteo\ModelUtils\ReflectionModelMetadata;
 
 class FooClass extends Model
 {
-
     protected $casts = [
-        'some_field' => 'object'
+        'some_field' => 'object',
     ];
 
     /** @return int */
-    function doc()
+    public function doc()
     {
     }
 
-    function type(): string
+    public function type(): string
     {
         return '';
     }
 
-    function getFooBarAttribute(): string
+    public function getFooBarAttribute(): string
     {
         return 'baz';
     }
 
-    function setFooBarAttribute(string $value): void
+    public function setFooBarAttribute(string $value): void
     {
     }
 }
 
 
 it('can read reflection metadata', function () {
-
     $refMeta = new ReflectionMetadata();
     $class = new ReflectionClass(FooClass::class);
 
@@ -65,7 +63,7 @@ it('can read accessors and mutators', function () {
 it('can read casts', function () {
     $ref = new ReflectionModelMetadata();
 
-    $res = $ref->getCastPropertiesTypes(new FooClass);
+    $res = $ref->getCastPropertiesTypes(new FooClass());
 
 
     $expected = [

@@ -6,14 +6,7 @@ namespace IvanoMatteo\ModelUtils;
 
 use Barryvdh\Reflection\DocBlock;
 use Barryvdh\Reflection\DocBlock\Context;
-use Barryvdh\Reflection\DocBlock\Tag;
-use DateTime;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use phpDocumentor\Reflection\Types\ContextFactory;
 use ReflectionClass;
 use ReflectionMethod;
@@ -33,6 +26,7 @@ class ReflectionMetadata
         if ($type) {
             return $type;
         }
+
         return $this->getReturnTypeFromReflection($refMethod);
     }
 
@@ -55,11 +49,10 @@ class ReflectionMetadata
         return $type;
     }
 
-
     public function getReturnTypeFromReflection(ReflectionMethod $refMethod): ?string
     {
         $returnType = $refMethod->getReturnType();
-        if (!$returnType) {
+        if (! $returnType) {
             return null;
         }
 
@@ -73,7 +66,6 @@ class ReflectionMetadata
 
         return $type;
     }
-
 
     protected function extractReflectionTypes(ReflectionType $reflection_type)
     {
@@ -94,11 +86,10 @@ class ReflectionMetadata
         return $types;
     }
 
-
     protected function getReflectionNamedType(ReflectionNamedType $paramType): string
     {
         $parameterName = $paramType->getName();
-        if (!$paramType->isBuiltin()) {
+        if (! $paramType->isBuiltin()) {
             $parameterName = '\\' . $parameterName;
         }
 
@@ -114,6 +105,7 @@ class ReflectionMetadata
         $className = trim($className, '\\');
 
         $usedClassNames = $this->getUsedClassNames($reflection);
+
         return $usedClassNames[$className] ?? ('\\' . $className);
     }
 

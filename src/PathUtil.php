@@ -4,24 +4,10 @@ declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils;
 
-use Barryvdh\Reflection\DocBlock;
-use Barryvdh\Reflection\DocBlock\Context;
-use Barryvdh\Reflection\DocBlock\Tag;
-use DateTime;
-use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Schema\Index;
-use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use phpDocumentor\Reflection\Types\ContextFactory;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use ReflectionClass;
-use ReflectionMethod;
-use ReflectionNamedType;
-use ReflectionObject;
-use ReflectionType;
 use SplFileInfo;
 
 /**
@@ -29,13 +15,12 @@ use SplFileInfo;
  */
 class PathUtil
 {
-
     /**
      * @return string[]
      */
     public static function findModels($basePath = null, $baseNamespace = "App")
     {
-        if (!isset($basePath)) {
+        if (! isset($basePath)) {
             $basePath = app_path('');
         }
         $baseNamespace = preg_replace("/^\\\\/", '', $baseNamespace);
@@ -67,7 +52,7 @@ class PathUtil
                     $fqcn = substr($fqcn, 1, strlen($fqcn) - 1);
                 }
 
-                if (!class_exists($fqcn, false)) {
+                if (! class_exists($fqcn, false)) {
                     include_once $item->getRealPath();
                 }
 

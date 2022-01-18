@@ -27,7 +27,7 @@ class ModelUtils
      */
     public static function findModels($basePath = null, $baseNamespace = "App")
     {
-        if (!isset($basePath)) {
+        if (! isset($basePath)) {
             $basePath = app_path('');
         }
         $baseNamespace = preg_replace("/^\\\\/", '', $baseNamespace);
@@ -59,7 +59,7 @@ class ModelUtils
                     $fqcn = substr($fqcn, 1, strlen($fqcn) - 1);
                 }
 
-                if (!class_exists($fqcn, false)) {
+                if (! class_exists($fqcn, false)) {
                     include_once $item->getRealPath();
                 }
 
@@ -99,7 +99,7 @@ class ModelUtils
             $this->reflectionClass = new ReflectionClass($this->model);
         }
 
-        if (!is_a($this->model, Model::class)) {
+        if (! is_a($this->model, Model::class)) {
             throw new \Exception("$classOrObj is not a Model");
         }
     }
@@ -116,7 +116,7 @@ class ModelUtils
 
     public function isVisible($f)
     {
-        if (!isset($this->hiddenMap)) {
+        if (! isset($this->hiddenMap)) {
             $this->hiddenMap = empty($this->model->getHidden()) ? false : array_fill_keys($this->model->getHidden(), true);
             $this->visibleMap = empty($this->model->getVisible()) ? false : array_fill_keys($this->model->getVisible(), true);
         }
@@ -126,7 +126,7 @@ class ModelUtils
         if ($this->visibleMap && empty($this->visibleMap[$f])) {
             $is_visible = false;
         }
-        if ($this->hiddenMap && !empty($this->hiddenMap[$f])) {
+        if ($this->hiddenMap && ! empty($this->hiddenMap[$f])) {
             $is_visible = false;
         }
 
@@ -187,7 +187,7 @@ class ModelUtils
 
     public function getMetadata($reload = false)
     {
-        if ($reload || !isset($this->metadata)) {
+        if ($reload || ! isset($this->metadata)) {
             $accessors = $this->getPropertiesFromMethods();
             $db_meta = $this->getDatabaseMetadata();
             $columns = $db_meta['columns'];
@@ -212,7 +212,7 @@ class ModelUtils
 
         $defDatabaseName = $conn->getDatabaseName();
 
-        if (!empty($database)) {
+        if (! empty($database)) {
             $conn->setDatabaseName($database);
         } else {
             $database = $defDatabaseName;
@@ -249,7 +249,7 @@ class ModelUtils
                 'srvtype' => $castType ?? $this->dbTypeToPhp($type->getName()),
                 'dbtype' => $type->getName(),
                 'length' => $col->getLength(),
-                'nullable' => !$col->getNotnull(),
+                'nullable' => ! $col->getNotnull(),
                 'default' => $col->getDefault(),
                 'autoincrement' => $col->getAutoincrement(),
                 'unsigned' => $col->getUnsigned(),
@@ -280,7 +280,7 @@ class ModelUtils
                     $method !== 'getAttribute'
                 ) {
                     $name = Str::snake(substr($method, 3, -9));
-                    if (!empty($name)) {
+                    if (! empty($name)) {
                         $reflection = new \ReflectionMethod($this->model, $method);
                         $srvtype = $this->getReturnType($reflection);
                         $type = $this->phpTypeToGeneric($srvtype);
@@ -366,7 +366,7 @@ class ModelUtils
     protected function getReturnTypeFromReflection(\ReflectionMethod $reflection): ?string
     {
         $returnType = $reflection->getReturnType();
-        if (!$returnType) {
+        if (! $returnType) {
             return null;
         }
 
@@ -402,7 +402,7 @@ class ModelUtils
     protected function getReflectionNamedType(ReflectionNamedType $paramType): string
     {
         $parameterName = $paramType->getName();
-        if (!$paramType->isBuiltin()) {
+        if (! $paramType->isBuiltin()) {
             $parameterName = '\\' . $parameterName;
         }
 
@@ -441,20 +441,25 @@ class ModelUtils
             case 'datetime':
             case 'decimal':
                 $type = 'string';
+
                 break;
             case 'integer':
             case 'bigint':
             case 'smallint':
                 $type = 'integer';
+
                 break;
             case 'boolean':
                 $type = 'boolean';
+
                 break;
             case 'float':
                 $type = 'float';
+
                 break;
             default:
                 $type = 'mixed';
+
                 break;
         }
 
@@ -535,13 +540,13 @@ class ModelUtils
      */
     protected function checkForCustomLaravelCasts(string $type): ?string
     {
-        if (!class_exists($type) || !interface_exists(CastsAttributes::class)) {
+        if (! class_exists($type) || ! interface_exists(CastsAttributes::class)) {
             return $type;
         }
 
         $reflection = new \ReflectionClass($type);
 
-        if (!$reflection->implementsInterface(CastsAttributes::class)) {
+        if (! $reflection->implementsInterface(CastsAttributes::class)) {
             return $type;
         }
 

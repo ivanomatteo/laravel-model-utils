@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils\Traits;
 
-use Illuminate\Database\Eloquent\Model;
 use IvanoMatteo\ModelUtils\ModelMetadata;
 use IvanoMatteo\ModelUtils\ReflectionModelMetadata;
 
@@ -14,9 +13,10 @@ trait ReflectionMetadata
 
     protected function getReflectionModelMetadata()
     {
-        if (!isset($this->reflectionModelMetadata)) {
+        if (! isset($this->reflectionModelMetadata)) {
             $this->reflectionModelMetadata = new ReflectionModelMetadata();
         }
+
         return $this->reflectionModelMetadata;
     }
 
@@ -27,6 +27,7 @@ trait ReflectionMetadata
                 ($this instanceof ModelMetadata) ? $this->model : $this
             );
     }
+
     public function getPropertiesFromAccessors($all = false): array
     {
         return collect($this->getReflectionModelMetadata()->getPropertiesFromAccessors(
