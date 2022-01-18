@@ -32,7 +32,8 @@ class ValidationUtil
 
     public function getValidationRules($alsoNotFillables = false)
     {
-        ['accessors' => $accessors, 'columns' => $columns] = $this->getMetadata();
+        $accessors = collect([]);
+        $columns = collect([]);
 
         $tmp = $accessors->merge($columns);
 

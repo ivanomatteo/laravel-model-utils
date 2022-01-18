@@ -20,6 +20,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionObject;
 use ReflectionType;
+use Reflector;
 
 /**
  * @property Model $model
@@ -36,20 +37,21 @@ class ReflectionMetadata
     }
 
 
-    public function getReturnTypeFromDocBlock(ReflectionMethod $refMethod):null|string
+    public function getReturnTypeFromDocBlock(ReflectionMethod $reflection, Reflector $reflectorForContext = null): null|string
     {
-        $phpDocContext = (new ContextFactory())->createFromReflector($refMethod);
+        $phpDocContext = (new ContextFactory())->createFromReflector($reflectorForContext ?? $reflection);
         $context = new Context(
             $phpDocContext->getNamespace(),
             $phpDocContext->getNamespaceAliases()
         );
         $type = null;
-        $phpdoc = new DocBlock($refMethod, $context);
+        $phpdoc = new DocBlock($reflection, $context);
 
         if ($phpdoc->hasTag('return')) {
-
+            // @phpstan-ignore-next-line
             $type = $phpdoc->getTagsByName('return')[0]->getType();
         }
+
         return $type;
     }
 
@@ -79,6 +81,7 @@ class ReflectionMetadata
             $types[] = $this->getReflectionNamedType($reflection_type);
         } else {
             $types = [];
+            // @phpstan-ignore-next-line
             foreach ($reflection_type->getTypes() as $named_type) {
                 if ($named_type->getName() === 'null') {
                     continue;
@@ -102,21 +105,13 @@ class ReflectionMetadata
         return $parameterName;
     }
 
-
-    public function getClassNameInDestinationFile(object $model, string $className): string
+    protected function getClassNameInDestinationFile(object $model, string $className): string
     {
         $reflection = $model instanceof ReflectionClass
             ? $model
-            : new ReflectionObject($model)
-        ;
+            : new ReflectionObject($model);
 
         $className = trim($className, '\\');
-        $writingToExternalFile = !$this->write || $this->write_mixin;
-        $classIsNotInExternalFile = $reflection->getName() !== $className;
-
-        if (($writingToExternalFile && $classIsNotInExternalFile)) {
-            return '\\' . $className;
-        }
 
         $usedClassNames = $this->getUsedClassNames($reflection);
         return $usedClassNames[$className] ?? ('\\' . $className);

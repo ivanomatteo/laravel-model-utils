@@ -54,6 +54,7 @@ it('can read accessors and mutators', function () {
             "name" => 'foo_bar',
             "type" => 'string',
             "has_mutator" => true,
+            "is_accessor" => true,
         ]
     ];
 
