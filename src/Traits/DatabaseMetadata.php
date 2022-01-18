@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils\Traits;
 
+use Doctrine\DBAL\Schema\Column;
 use Illuminate\Support\Collection;
 
 /**
@@ -14,8 +15,10 @@ trait DatabaseMetadata
 {
     use VisibilityCheck;
 
-    /** @return array[] */
-    public function getDatabaseColumns($all = false)
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function getDatabaseColumns($all = false): array
     {
         $table = $this->getTable();
 
@@ -23,19 +26,20 @@ trait DatabaseMetadata
         $parts = array_reverse(explode('.', $table));
 
 
-        /** @var Collection<\Doctrine\DBAL\Schema\Column> */
+        /** @var Collection<Column> */
         $columns = collect($schema->listTableColumns($parts[0], $parts[1] ?? null))
-            ->mapWithKeys(function (\Doctrine\DBAL\Schema\Column $col) {
+            ->mapWithKeys(function (Column $col) {
                 return [
                     $col->getName() => [
                         'name' => $col->getName(),
                         'type' => $col->getType()->getName(),
                         'autoincrement' => $col->getAutoincrement(),
                         'length' => $col->getLength(),
-                        'nullable' => ! $col->getNotnull(),
+                        'nullable' => !$col->getNotnull(),
                         'default' => $col->getDefault(),
                         'precision' => $col->getPrecision(),
                         'options' => $col->getPlatformOptions(),
+                        'is_db_field' => true,
                     ],
                 ];
             });
@@ -51,8 +55,11 @@ trait DatabaseMetadata
         )->toArray();
     }
 
-    /** @return array[] */
-    public function getDatabaseIndexes()
+
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function getDatabaseIndexes(): array
     {
         $table = $this->getTable();
         $parts = array_reverse(explode('.', $table));
@@ -61,7 +68,6 @@ trait DatabaseMetadata
             // 'unsupported database.table notation'
             return [];
         }
-
 
         $schema = $this->getConnection()->getDoctrineSchemaManager();
 

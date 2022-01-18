@@ -18,9 +18,9 @@ class PathUtil
     /**
      * @return string[]
      */
-    public static function findModels($basePath = null, $baseNamespace = "App")
+    public static function findModels($basePath = null, $baseNamespace = "App"): array
     {
-        if (! isset($basePath)) {
+        if (!isset($basePath)) {
             $basePath = app_path('');
         }
         $baseNamespace = preg_replace("/^\\\\/", '', $baseNamespace);
@@ -52,7 +52,7 @@ class PathUtil
                     $fqcn = substr($fqcn, 1, strlen($fqcn) - 1);
                 }
 
-                if (! class_exists($fqcn, false)) {
+                if (!class_exists($fqcn, false)) {
                     include_once $item->getRealPath();
                 }
 

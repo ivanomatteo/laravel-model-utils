@@ -12,10 +12,9 @@ trait VisibilityCheck
 {
     public function isVisible($name): bool
     {
-        if (array_search($name, $this->getHidden()) !== false) {
+        if (in_array($name, $this->getHidden())) {
             return false;
         }
-
-        return empty($this->getVisible()) || (array_search($name, $this->getVisible()) !== false);
+        return empty($this->getVisible()) || (in_array($name, $this->getVisible()));
     }
 }

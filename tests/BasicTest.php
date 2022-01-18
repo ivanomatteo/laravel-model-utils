@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils\Tests;
 
+use Illuminate\Support\Arr;
 use IvanoMatteo\ModelUtils\ModelMetadata;
 use IvanoMatteo\ModelUtils\ReflectionMetadata;
 use IvanoMatteo\ModelUtils\ReflectionModelMetadata;
@@ -23,7 +24,7 @@ it('can read reflection metadata', function () {
 
 it('can read accessors and mutators', function () {
     $ref = new ReflectionModelMetadata();
-    $res = $ref->getPropertiesFromAccessors(FooClass::class);
+    $res = $ref->getAccessorsMetadata(FooClass::class);
 
     $expected = [
         'foo_bar' => [
@@ -40,7 +41,7 @@ it('can read accessors and mutators', function () {
 
 it('can read casts', function () {
     $ref = new ReflectionModelMetadata();
-    $res = $ref->getCastPropertiesTypes(new FooClass());
+    $res = $ref->getCastAttributesTypes(new FooClass());
 
     $expected = [
         "id" => 'integer',
@@ -61,6 +62,7 @@ it('can read database properties', function () {
 
 it('can read all attributes properties', function () {
     $meta = new ModelMetadata(FooClass::class);
+
     $res = $meta->getAttributesMetadata();
 
     expect($res['columns'])->toHaveKeys(['id', 'name', 'age', 'memo', 'data','some_field','foo_bar']);
@@ -74,4 +76,40 @@ it('can respect hidden attributes', function () {
 
     $res = $meta->getAttributesMetadata(true);
     expect($res['columns'])->toHaveKeys(['password']);
+});
+
+
+it('can respect hidden attributes - model trait', function () {
+    $f = new FooClass();
+
+    $f->makeHidden('some_field');
+    $res = $f->getAttributesMetadata();
+    expect($res['columns'])->not()->toHaveKeys(['some_field']);
+
+    $f->makeVisible('some_field');
+    $res = $f->getAttributesMetadata();
+    expect($res['columns'])->toHaveKeys(['some_field']);
+});
+
+it('can respect hidden attributes - accessors model trait', function () {
+    $f = new FooClass();
+
+    $f->makeHidden('foo_bar');
+    $res = $f->getAttributesMetadata();
+    expect($res['columns'])->not()->toHaveKeys(['foo_bar']);
+
+    $f->makeVisible('foo_bar');
+    $res = $f->getAttributesMetadata();
+    expect($res['columns'])->toHaveKeys(['foo_bar']);
+});
+
+it('can generate validation rules', function () {
+    $f = new FooClass();
+
+    $rules = $f->getBasicValidationRules();
+
+    expect($rules)->toHaveKeys(['id', 'name', 'age', 'memo', 'data','some_field','foo_bar']);
+    expect($rules['memo'])->toMatchArray(["required", "string"]);
+
+
 });

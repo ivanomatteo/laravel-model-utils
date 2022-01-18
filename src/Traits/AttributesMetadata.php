@@ -10,12 +10,12 @@ use IvanoMatteo\ModelUtils\TypeMapper;
  * @method array getHidden()
  * @method array getVisible()
  */
-trait ModelMetadataTrait
+trait AttributesMetadata
 {
     use DatabaseMetadata;
     use ReflectionMetadata;
 
-    public function getAttributesMetadata($all = false)
+    public function getAttributesMetadata($all = false): array
     {
         $typeMapper = new TypeMapper();
         $columns = $this->getDatabaseColumns($all);

@@ -11,18 +11,27 @@ use Illuminate\Support\Collection;
 /**
  * @method array getAttributesMetadata()
  */
-trait ValidationUtil
+trait BasicValidation
 {
     use AttributesMetadata;
 
-    public function getValidationRules(): Collection
+    public function getBasicValidationRules(): array
     {
         $columns = $this->getAttributesMetadata()['columns'];
 
-        return $columns
+
+        return collect($columns)
             ->filter(fn($item)=>(empty($item['is_accessor']) || !empty($item['has_mutator'])))
             ->map(function ($item, $key) {
             $rules = [];
+
+            if($this->isAttributeRequired($item)){
+                $rules[] = 'required';
+            }else{
+                $rules[] = 'sometimes';
+                $rules[] = 'nullable';
+            }
+
             switch ($item['type']) {
                 case 'integer':
                     $rules[] = 'integer';
@@ -64,6 +73,28 @@ trait ValidationUtil
             }
 
             return $rules;
-        });
+        })->toArray();
+    }
+
+    protected function isAttributeRequired($item): bool
+    {
+
+        if(empty($item['is_db_field'])){
+            return false;
+        }
+
+        if(!empty($item['autoincrement'])){
+            return false;
+        }
+
+        if(!empty($item['nullable'])){
+            return false;
+        }
+
+        if(!empty($item['default'])){
+            return false;
+        }
+
+        return true;
     }
 }

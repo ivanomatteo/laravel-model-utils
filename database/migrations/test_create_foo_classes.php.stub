@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('name')->nullable()->unique();
             $table->string('password')->nullable();
             $table->integer('age')->nullable()->index();
-            $table->text('memo')->nullable();
+            $table->text('memo');
             $table->json('data')->nullable();
             $table->json('some_field')->nullable();
 

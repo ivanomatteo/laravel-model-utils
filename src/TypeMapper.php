@@ -22,7 +22,7 @@ class TypeMapper
     }
 
 
-    protected $phpToGeneric = [
+    protected array $phpToGeneric = [
         'mixed' => 'string',
         'string' => 'string',
         'DateTime' => 'datetime',
@@ -39,7 +39,7 @@ class TypeMapper
         'stdClass' => 'json',
     ];
 
-    protected $doctrineToGeneric = [
+    protected array $doctrineToGeneric = [
         "bigint" => 'integer',
         "integer" => 'integer',
         "smallint" => 'integer',
@@ -55,7 +55,7 @@ class TypeMapper
         "blob" => 'blob',
     ];
 
-    protected $genericTypes = [
+    protected array $genericTypes = [
         'integer',
         'float',
         'string',

@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace IvanoMatteo\ModelUtils\Tests\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use IvanoMatteo\ModelUtils\Traits\AttributesMetadata;
+use IvanoMatteo\ModelUtils\Traits\BasicValidation;
 
 class FooClass extends Model
 {
+    use BasicValidation;
+
     protected $casts = [
         'data' => 'array',
         'some_field' => 'object',

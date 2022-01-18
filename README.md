@@ -1,4 +1,4 @@
-# Extract info from models, generate laravel factories, generate phpdoc comment with property name for type hinting
+# Extract attributes metadata from model
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
 [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/model-utils/run-tests?label=tests)](https://github.com/ivanomatteo/model-utils/actions?query=workflow%3Arun-tests+branch%3Amain)

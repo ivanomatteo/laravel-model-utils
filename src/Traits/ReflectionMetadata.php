@@ -11,27 +11,26 @@ trait ReflectionMetadata
 {
     protected ?ReflectionModelMetadata $reflectionModelMetadata;
 
-    protected function getReflectionModelMetadata()
+    protected function getReflectionModelMetadata(): ?ReflectionModelMetadata
     {
-        if (! isset($this->reflectionModelMetadata)) {
+        if (!isset($this->reflectionModelMetadata)) {
             $this->reflectionModelMetadata = new ReflectionModelMetadata();
         }
-
         return $this->reflectionModelMetadata;
     }
 
-    public function getCastPropertiesTypes(): array
+    public function getCastAttributesTypes(): array
     {
         return $this->getReflectionModelMetadata()
-            ->getCastPropertiesTypes(
+            ->getCastAttributesTypes(
                 ($this instanceof ModelMetadata) ? $this->model : $this
             );
     }
 
-    public function getPropertiesFromAccessors($all = false): array
+    public function getAccessorsMetadata($all = false): array
     {
-        return collect($this->getReflectionModelMetadata()->getPropertiesFromAccessors(
+        return collect($this->getReflectionModelMetadata()->getAccessorsMetadata(
             ($this instanceof ModelMetadata) ? $this->model : $this
-        ))->filter(fn ($p) => ($all || $this->isVisible($p['name'])))->toArray();
+        ))->filter(fn($p) => ($all || $this->isVisible($p['name'])))->toArray();
     }
 }
