@@ -30,7 +30,6 @@ class ReflectionMetadata
         return $this->getReturnTypeFromReflection($refMethod);
     }
 
-
     public function getReturnTypeFromDocBlock(ReflectionMethod $reflection, Reflector $reflectorForContext = null): null|string
     {
         $phpDocContext = (new ContextFactory())->createFromReflector($reflectorForContext ?? $reflection);

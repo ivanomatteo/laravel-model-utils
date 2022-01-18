@@ -53,7 +53,7 @@ it('can read accessors and mutators', function () {
             "type" => 'string',
             "has_mutator" => true,
             "is_accessor" => true,
-        ]
+        ],
     ];
 
     expect($res)->toMatchArray($expected);
