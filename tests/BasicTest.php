@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace IvanoMatteo\ModelUtils\Tests;
 
-use Illuminate\Support\Arr;
 use IvanoMatteo\ModelUtils\ModelMetadata;
 use IvanoMatteo\ModelUtils\ReflectionMetadata;
 use IvanoMatteo\ModelUtils\ReflectionModelMetadata;
@@ -110,6 +109,4 @@ it('can generate validation rules', function () {
 
     expect($rules)->toHaveKeys(['id', 'name', 'age', 'memo', 'data','some_field','foo_bar']);
     expect($rules['memo'])->toMatchArray(["required", "string"]);
-
-
 });

@@ -13,9 +13,10 @@ trait ReflectionMetadata
 
     protected function getReflectionModelMetadata(): ?ReflectionModelMetadata
     {
-        if (!isset($this->reflectionModelMetadata)) {
+        if (! isset($this->reflectionModelMetadata)) {
             $this->reflectionModelMetadata = new ReflectionModelMetadata();
         }
+
         return $this->reflectionModelMetadata;
     }
 
@@ -31,6 +32,6 @@ trait ReflectionMetadata
     {
         return collect($this->getReflectionModelMetadata()->getAccessorsMetadata(
             ($this instanceof ModelMetadata) ? $this->model : $this
-        ))->filter(fn($p) => ($all || $this->isVisible($p['name'])))->toArray();
+        ))->filter(fn ($p) => ($all || $this->isVisible($p['name'])))->toArray();
     }
 }

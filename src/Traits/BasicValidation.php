@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace IvanoMatteo\ModelUtils\Traits;
 
 use DateTimeInterface;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 
 /**
  * @method array getAttributesMetadata()
@@ -21,18 +19,18 @@ trait BasicValidation
 
 
         return collect($columns)
-            ->filter(fn($item)=>(empty($item['is_accessor']) || !empty($item['has_mutator'])))
+            ->filter(fn ($item) => (empty($item['is_accessor']) || ! empty($item['has_mutator'])))
             ->map(function ($item, $key) {
-            $rules = [];
+                $rules = [];
 
-            if($this->isAttributeRequired($item)){
-                $rules[] = 'required';
-            }else{
-                $rules[] = 'sometimes';
-                $rules[] = 'nullable';
-            }
+                if ($this->isAttributeRequired($item)) {
+                    $rules[] = 'required';
+                } else {
+                    $rules[] = 'sometimes';
+                    $rules[] = 'nullable';
+                }
 
-            switch ($item['type']) {
+                switch ($item['type']) {
                 case 'integer':
                     $rules[] = 'integer';
 
@@ -45,9 +43,10 @@ trait BasicValidation
                 case 'text':
                 case 'blob':
                     $rules[] = 'string';
-                    if(!empty($item['length'])) {
+                    if (! empty($item['length'])) {
                         $rules[] = "max:" . $item['length'];
                     }
+
                     break;
                 case 'date':
                     $rules[] = 'date_format:Y-m-d';
@@ -63,35 +62,35 @@ trait BasicValidation
                     break;
                 case 'json':
                     $rules[] = 'json';
-                    if(!empty($item['length'])) {
+                    if (! empty($item['length'])) {
                         $rules[] = "max:" . $item['length'];
                     }
+
                     break;
                 default:
 
                     break;
             }
 
-            return $rules;
-        })->toArray();
+                return $rules;
+            })->toArray();
     }
 
     protected function isAttributeRequired($item): bool
     {
-
-        if(empty($item['is_db_field'])){
+        if (empty($item['is_db_field'])) {
             return false;
         }
 
-        if(!empty($item['autoincrement'])){
+        if (! empty($item['autoincrement'])) {
             return false;
         }
 
-        if(!empty($item['nullable'])){
+        if (! empty($item['nullable'])) {
             return false;
         }
 
-        if(!empty($item['default'])){
+        if (! empty($item['default'])) {
             return false;
         }
 

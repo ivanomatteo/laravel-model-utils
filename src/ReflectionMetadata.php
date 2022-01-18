@@ -51,7 +51,7 @@ class ReflectionMetadata
     public function getReturnTypeFromReflection(ReflectionMethod $refMethod): ?string
     {
         $returnType = $refMethod->getReturnType();
-        if (!$returnType) {
+        if (! $returnType) {
             return null;
         }
 
@@ -88,7 +88,7 @@ class ReflectionMetadata
     protected function getReflectionNamedType(ReflectionNamedType $paramType): string
     {
         $parameterName = $paramType->getName();
-        if (!$paramType->isBuiltin()) {
+        if (! $paramType->isBuiltin()) {
             $parameterName = '\\' . $parameterName;
         }
 

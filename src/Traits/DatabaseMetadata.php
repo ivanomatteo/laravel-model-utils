@@ -35,7 +35,7 @@ trait DatabaseMetadata
                         'type' => $col->getType()->getName(),
                         'autoincrement' => $col->getAutoincrement(),
                         'length' => $col->getLength(),
-                        'nullable' => !$col->getNotnull(),
+                        'nullable' => ! $col->getNotnull(),
                         'default' => $col->getDefault(),
                         'precision' => $col->getPrecision(),
                         'options' => $col->getPlatformOptions(),
@@ -54,7 +54,6 @@ trait DatabaseMetadata
             }
         )->toArray();
     }
-
 
     /**
      * @throws \Doctrine\DBAL\Exception

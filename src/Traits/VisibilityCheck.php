@@ -15,6 +15,7 @@ trait VisibilityCheck
         if (in_array($name, $this->getHidden())) {
             return false;
         }
+
         return empty($this->getVisible()) || (in_array($name, $this->getVisible()));
     }
 }
