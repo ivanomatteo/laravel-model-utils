@@ -29,7 +29,7 @@ class ReflectionModelMetadata extends ReflectionMetadata
             unset($accessor['method']);
 
             return array_merge($accessor, [
-                'has_mutator' => !empty($mutators[$accessor['name']]),
+                'has_mutator' => ! empty($mutators[$accessor['name']]),
                 'is_accessor' => true,
             ]);
         })->toArray();
@@ -45,7 +45,7 @@ class ReflectionModelMetadata extends ReflectionMetadata
             if ($prefix === 'set') {
                 $params = $method->getParameters();
 
-                return count($params) === 1 && !$params[0]->isOptional();
+                return count($params) === 1 && ! $params[0]->isOptional();
             }
 
             return true;
@@ -148,13 +148,13 @@ class ReflectionModelMetadata extends ReflectionMetadata
      */
     protected function checkForCustomLaravelCasts(string $type): ?string
     {
-        if (!class_exists($type) || !interface_exists(CastsAttributes::class)) {
+        if (! class_exists($type) || ! interface_exists(CastsAttributes::class)) {
             return $type;
         }
 
         $reflection = new ReflectionClass($type);
 
-        if (!$reflection->implementsInterface(CastsAttributes::class)) {
+        if (! $reflection->implementsInterface(CastsAttributes::class)) {
             return $type;
         }
 
