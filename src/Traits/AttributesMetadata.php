@@ -19,8 +19,8 @@ trait ModelMetadataTrait
     {
         $typeMapper = new TypeMapper();
         $columns = $this->getDatabaseColumns($all);
-        $accessors = $this->getPropertiesFromAccessors($all);
-        $cast = $this->getCastPropertiesTypes();
+        $accessors = $this->getAccessorsMetadata($all);
+        $cast = $this->getCastAttributesTypes();
         $indexes = $this->getDatabaseIndexes();
 
         foreach ($indexes as $name => $props) {

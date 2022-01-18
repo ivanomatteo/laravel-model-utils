@@ -2,27 +2,26 @@
 
 declare(strict_types=1);
 
-namespace IvanoMatteo\ModelUtils;
+namespace IvanoMatteo\ModelUtils\Traits;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 /**
- * @property Model $model
+ * @method array getAttributesMetadata()
  */
-class ValidationUtil
+trait ValidationUtil
 {
-    public function getValidationRules($alsoNotFillables = false)
+    use AttributesMetadata;
+
+    public function getValidationRules(): Collection
     {
-        $accessors = collect([]);
-        $columns = collect([]);
+        $columns = $this->getAttributesMetadata()['columns'];
 
-        $tmp = $accessors->merge($columns);
-
-        if ($alsoNotFillables) {
-            $tmp = $tmp->where('fillable', '=', true);
-        }
-
-        return $tmp->map(function ($item, $key) {
+        return $columns
+            ->filter(fn($item)=>(empty($item['is_accessor']) || !empty($item['has_mutator'])))
+            ->map(function ($item, $key) {
             $rules = [];
             switch ($item['type']) {
                 case 'integer':
@@ -34,17 +33,19 @@ class ValidationUtil
 
                     break;
                 case 'string':
+                case 'text':
                 case 'blob':
                     $rules[] = 'string';
-                    $rules[] = "max:" . $item['length'];
-
+                    if(!empty($item['length'])) {
+                        $rules[] = "max:" . $item['length'];
+                    }
                     break;
                 case 'date':
                     $rules[] = 'date_format:Y-m-d';
 
                     break;
                 case 'datetime':
-                    $rules[] = 'date_format:Y-m-d H:i:s';
+                    $rules[] = 'date_format:'. DateTimeInterface::ISO8601;
 
                     break;
                 case 'time':
@@ -53,7 +54,9 @@ class ValidationUtil
                     break;
                 case 'json':
                     $rules[] = 'json';
-
+                    if(!empty($item['length'])) {
+                        $rules[] = "max:" . $item['length'];
+                    }
                     break;
                 default:
 
