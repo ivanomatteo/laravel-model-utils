@@ -27,7 +27,7 @@ trait ModelMetadataTrait
             if (count($props['columns']) === 1 && isset($columns[$props['columns'][0]])) {
                 $colName = $props['columns'][0];
 
-                $columns[$colName]['index'][] = $props;
+                $columns[$colName]['index'][] = $props['name'];
 
                 if ($props['primary']) {
                     $columns[$colName]['primary'] = true;

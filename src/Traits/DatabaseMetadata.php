@@ -62,7 +62,7 @@ trait DatabaseMetadata
             return [];
         }
 
-        /** @var \Doctrine\DBAL\Schema\MySQLSchemaManager */
+
         $schema = $this->getConnection()->getDoctrineSchemaManager();
 
         return collect($schema->listTableIndexes($table))

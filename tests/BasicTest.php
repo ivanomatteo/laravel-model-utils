@@ -1,34 +1,15 @@
 <?php
 
-use Illuminate\Database\Eloquent\Model;
+declare(strict_types=1);
+
+namespace IvanoMatteo\ModelUtils\Tests;
+
+use IvanoMatteo\ModelUtils\ModelMetadata;
 use IvanoMatteo\ModelUtils\ReflectionMetadata;
 use IvanoMatteo\ModelUtils\ReflectionModelMetadata;
+use IvanoMatteo\ModelUtils\Tests\Models\FooClass;
+use ReflectionClass;
 
-class FooClass extends Model
-{
-    protected $casts = [
-        'some_field' => 'object',
-    ];
-
-    /** @return int */
-    public function doc()
-    {
-    }
-
-    public function type(): string
-    {
-        return '';
-    }
-
-    public function getFooBarAttribute(): string
-    {
-        return 'baz';
-    }
-
-    public function setFooBarAttribute(string $value): void
-    {
-    }
-}
 
 
 it('can read reflection metadata', function () {
@@ -44,7 +25,6 @@ it('can read reflection metadata', function () {
 
 it('can read accessors and mutators', function () {
     $ref = new ReflectionModelMetadata();
-
     $res = $ref->getPropertiesFromAccessors(FooClass::class);
 
     $expected = [
@@ -62,9 +42,7 @@ it('can read accessors and mutators', function () {
 
 it('can read casts', function () {
     $ref = new ReflectionModelMetadata();
-
     $res = $ref->getCastPropertiesTypes(new FooClass());
-
 
     $expected = [
         "id" => 'integer',
@@ -73,3 +51,31 @@ it('can read casts', function () {
 
     expect($res)->toMatchArray($expected);
 });
+
+
+it('can read database properties', function () {
+    $meta = new ModelMetadata(FooClass::class);
+    $res = $meta->getDatabaseColumns();
+
+    expect($res)->toHaveKeys(['id', 'name', 'age', 'memo', 'data','some_field']);
+});
+
+
+it('can read all attributes properties', function () {
+    $meta = new ModelMetadata(FooClass::class);
+    $res = $meta->getAttributesMetadata();
+
+    expect($res['columns'])->toHaveKeys(['id', 'name', 'age', 'memo', 'data','some_field','foo_bar']);
+});
+
+it('can respect hidden attributes', function () {
+    $meta = new ModelMetadata(FooClass::class);
+
+    $res = $meta->getAttributesMetadata();
+    expect($res['columns'])->not()->toHaveKeys(['password']);
+
+    $res = $meta->getAttributesMetadata(true);
+    expect($res['columns'])->toHaveKeys(['password']);
+});
+
+

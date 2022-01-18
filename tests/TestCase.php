@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace IvanoMatteo\ModelUtils\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -13,7 +15,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'IvanoMatteo\\ModelUtils\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'IvanoMatteo\\ModelUtils\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
@@ -28,9 +30,7 @@ class TestCase extends Orchestra
     {
         config()->set('database.default', 'testing');
 
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_model-utils_table.php.stub';
+        $migration = include __DIR__.'/../database/migrations/test_create_foo_classes.php.stub';
         $migration->up();
-        */
     }
 }

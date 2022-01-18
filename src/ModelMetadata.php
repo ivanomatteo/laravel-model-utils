@@ -8,13 +8,14 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\ForwardsCalls;
 use IvanoMatteo\ModelUtils\Traits\DatabaseMetadata;
+use IvanoMatteo\ModelUtils\Traits\ModelMetadataTrait;
 use IvanoMatteo\ModelUtils\Traits\ReflectionMetadata;
 
 class ModelMetadata
 {
-    use DatabaseMetadata;
+    use ModelMetadataTrait;
     use ForwardsCalls;
-    use ReflectionMetadata;
+
 
     protected Model $model;
 
@@ -38,8 +39,7 @@ class ModelMetadata
 
     public function __call($method, $parameters)
     {
-        $this->forwardCallTo($this->model, $method, $parameters);
-
-        return $this;
+        return $this->forwardCallTo($this->model, $method, $parameters);
     }
 }
+

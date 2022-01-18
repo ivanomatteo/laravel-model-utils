@@ -1,0 +1,25 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up()
+    {
+        Schema::create('foo_classes', function (Blueprint $table) {
+
+            $table->id();
+
+            $table->string('name')->nullable()->unique();
+            $table->string('password')->nullable();
+            $table->integer('age')->nullable()->index();
+            $table->text('memo')->nullable();
+            $table->json('data')->nullable();
+            $table->json('some_field')->nullable();
+
+            $table->timestamps();
+        });
+    }
+};
