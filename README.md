@@ -1,7 +1,7 @@
 # Extract attributes metadata from model
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/model-utils/run-tests?label=tests)](https://github.com/ivanomatteo/model-utils/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/model-utils/run-tests?label=tests)](https://github.com/ivanomatteo/model-utils/actions?query=workflow%3Arun-tests+branch%3Amaster)
 [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/model-utils/Check%20&%20fix%20styling?label=code%20style)](https://github.com/ivanomatteo/model-utils/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
 
