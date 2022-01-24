@@ -17,53 +17,6 @@ use ReflectionMethod;
  */
 class ReflectionModelMetadata extends ReflectionMetadata
 {
-    public function getAccessorsMetadata($class): array
-    {
-        $refClass = new ReflectionClass($class);
-        $methods = collect($refClass->getMethods());
-
-        $accessors = $this->filterModifier($methods);
-        $mutators = $this->filterModifier($methods);
-
-        return $accessors->map(function (array $accessor) use ($mutators) {
-            unset($accessor['method']);
-
-            return array_merge($accessor, [
-                'has_mutator' => ! empty($mutators[$accessor['name']]),
-                'is_accessor' => true,
-            ]);
-        })->toArray();
-    }
-
-    protected function filterModifier(Collection $methods, $prefix = 'get'): Collection
-    {
-        return $methods->filter(
-            fn (ReflectionMethod $method) => (Str::startsWith($method->getShortName(), $prefix) &&
-                Str::endsWith($method->getShortName(), 'Attribute') &&
-                $method !== ($prefix . "Attribute"))
-        )->filter(function (ReflectionMethod $method) use ($prefix) {
-            if ($prefix === 'set') {
-                $params = $method->getParameters();
-
-                return count($params) === 1 && ! $params[0]->isOptional();
-            }
-
-            return true;
-        })->mapWithKeys(function (ReflectionMethod $method) {
-            $name = Str::snake(substr($method->getShortName(), 3, -9));
-            if (empty($name)) {
-                return [];
-            }
-
-            return [
-                $name => [
-                    'method' => $method,
-                    'name' => $name,
-                    'type' => $this->getReturnType($method),
-                ],
-            ];
-        });
-    }
 
     /**
      * @throws ReflectionException
@@ -128,6 +81,56 @@ class ReflectionModelMetadata extends ReflectionMetadata
         }
 
         return $props;
+    }
+
+
+    public function getAccessorsMetadata($class): array
+    {
+        $refClass = new ReflectionClass($class);
+        $methods = collect($refClass->getMethods());
+
+        $accessors = $this->filterModifier($methods);
+        $mutators = $this->filterModifier($methods);
+
+        return $accessors->map(function (array $accessor) use ($mutators) {
+            unset($accessor['method']);
+
+            return array_merge($accessor, [
+                'has_mutator' => ! empty($mutators[$accessor['name']]),
+                'is_accessor' => true,
+            ]);
+        })->toArray();
+    }
+
+
+    protected function filterModifier(Collection $methods, $prefix = 'get'): Collection
+    {
+        return $methods->filter(
+            fn (ReflectionMethod $method) => (Str::startsWith($method->getShortName(), $prefix) &&
+                Str::endsWith($method->getShortName(), 'Attribute') &&
+                $method !== ($prefix . "Attribute"))
+        )->filter(function (ReflectionMethod $method) use ($prefix) {
+            if ($prefix === 'set') {
+                $params = $method->getParameters();
+
+                return count($params) === 1 && ! $params[0]->isOptional();
+            }
+
+            return true;
+        })->mapWithKeys(function (ReflectionMethod $method) {
+            $name = Str::snake(substr($method->getShortName(), 3, -9));
+            if (empty($name)) {
+                return [];
+            }
+
+            return [
+                $name => [
+                    'method' => $method,
+                    'name' => $name,
+                    'type' => $this->getReturnType($method),
+                ],
+            ];
+        });
     }
 
     protected function getTypeInModel(object $model, ?string $type): ?string
