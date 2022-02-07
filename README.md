@@ -1,9 +1,9 @@
 # Extract attributes metadata from model
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/model-utils/run-tests?label=tests)](https://github.com/ivanomatteo/model-utils/actions?query=workflow%3Arun-tests+branch%3Amaster)
-[![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/model-utils/Check%20&%20fix%20styling?label=code%20style)](https://github.com/ivanomatteo/model-utils/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/ivanomatteo/model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/model-utils)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/ivanomatteo/laravel-model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/laravel-model-utils)
+[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/laravel-model-utils/run-tests?label=tests)](https://github.com/ivanomatteo/laravel-model-utils/actions?query=workflow%3Arun-tests+branch%3Amaster)
+[![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/ivanomatteo/laravel-model-utils/Check%20&%20fix%20styling?label=code%20style)](https://github.com/ivanomatteo/laravel-model-utils/actions?query=workflow%3A"Check+%26+fix+styling"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/ivanomatteo/laravel-model-utils.svg?style=flat-square)](https://packagist.org/packages/ivanomatteo/laravel-model-utils)
 
 This package provide a simple way to retrive usefull metadata from laravel models
 
@@ -19,7 +19,7 @@ This package provide a simple way to retrive usefull metadata from laravel model
 You can install the package via composer:
 
 ```bash
-composer require ivanomatteo/model-utils
+composer require ivanomatteo/laravel-model-utils
 ```
 
 ## Usage
