@@ -17,7 +17,6 @@ use ReflectionMethod;
  */
 class ReflectionModelMetadata extends ReflectionMetadata
 {
-
     /**
      * @throws ReflectionException
      */
@@ -83,7 +82,6 @@ class ReflectionModelMetadata extends ReflectionMetadata
         return $props;
     }
 
-
     public function getAccessorsMetadata($class): array
     {
         $refClass = new ReflectionClass($class);
@@ -101,7 +99,6 @@ class ReflectionModelMetadata extends ReflectionMetadata
             ]);
         })->toArray();
     }
-
 
     protected function filterModifier(Collection $methods, $prefix = 'get'): Collection
     {
