@@ -13,7 +13,7 @@ class TypeMapper
 
     public function phpToGeneric($type): string
     {
-        return $this->phpToGeneric[trim($type," \t\n\r\0\x0B\\")] ?? 'string';
+        return $this->phpToGeneric[trim($type, " \t\n\r\0\x0B\\")] ?? 'string';
     }
 
     public function doctrineToGeneric($type): string
